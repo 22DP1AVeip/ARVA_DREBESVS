@@ -1,9 +1,18 @@
 <script setup lang="ts">
 import NavBar from "../components/NavBar.vue";
-import Footer from "../components/Footer.vue";
+import Footer from "../components/NavFooter.vue";
 import ProductCards from "../components/ProductCards.vue";
-import { ref, computed } from 'vue';
-import { usePage } from '@inertiajs/vue3';
+import { computed, ref } from "vue";
+import { usePage } from "@inertiajs/vue3";
+
+interface DbProduct {
+  id: number;
+  name: string;
+  price: string | number;
+  category: string;
+  image_men: string | null;
+  image_women: string | null;
+}
 
 interface User {
   id: number;
@@ -14,27 +23,35 @@ interface Auth {
   user: User | null;
 }
 
-const auth = usePage().props.auth as Auth;
+const page = usePage();
+
+const auth = page.props.auth as Auth;
 const isLoggedIn = computed(() => !!auth.user);
 
 const favorites = ref<number[]>([]);
-const products = ref([
-  { id: 6, name: 'Women Jeans', images: { men: '/bildites/Men_jeans_1.jpg', women: '/bildites/Woman_jeans_1.jpg' } },
-  { id: 7, name: 'Women T-Shirt', images: { men: '/bildites/Men_tshirt_1.jpg', women: '/bildites/Woman_tshirt_1.jpg' } },
-  { id: 8, name: 'Women Jacket', images: { men: '/bildites/Men_jacket_1.jpg', women: '/bildites/Woman_jacket_1.jpg' } },
-  { id: 9, name: 'Women Shoes', images: { men: '/bildites/Men_shoes_1.jpg', women: '/bildites/Woman_shoes_1.jpg' } },
-  { id: 10, name: 'Women Hat', images: { men: '/bildites/Men_hats_1.jpg', women: '/bildites/Woman_hats_1.jpg' } },
-]);
 
 function toggleFavorite(id: number) {
   if (favorites.value.includes(id)) {
-    favorites.value = favorites.value.filter(favId => favId !== id);
+    favorites.value = favorites.value.filter((favId) => favId !== id);
   } else {
     favorites.value.push(id);
   }
 }
-</script>
 
+const products = computed(() => {
+  const dbProducts = (page.props.products as DbProduct[]) ?? [];
+  return dbProducts.map((p) => ({
+    id: p.id,
+    name: p.name,
+    price: Number(p.price),
+    category: p.category,
+    images: {
+      men: p.image_men ?? "",
+      women: p.image_women ?? "",
+    },
+  }));
+});
+</script>
 
 <template>
   <main class="women-view">
@@ -43,12 +60,15 @@ function toggleFavorite(id: number) {
       :toggleFavorite="toggleFavorite"
       :products="products"
     />
-    <ProductCards 
+
+    <ProductCards
       :isLoggedIn="isLoggedIn"
       :favorites="favorites"
       :toggleFavorite="toggleFavorite"
       category="women"
+      :products="products"
     />
+
     <Footer />
   </main>
 </template>

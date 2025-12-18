@@ -72,145 +72,64 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed } from "vue";
+
+type Gender = "men" | "women";
+
+interface UiProduct {
+  id: number;
+  name: string;
+  price: number;
+  category: string;
+  images: {
+    men: string;
+    women: string;
+  };
+}
 
 const props = defineProps<{
-  isLoggedIn: boolean
-  favorites: number[]
-  toggleFavorite: (id: number) => void
-  category: string
-}>()
+  isLoggedIn: boolean;
+  favorites: number[];
+  toggleFavorite: (id: number) => void;
+  category: Gender;
+  products: UiProduct[];
+}>();
 
-const products = ref([
-  {
-    id: 1,
-    name: 'Jeans',
-    price: 39.99,
-    category: 'jeans',
-    images: {
-      men: '/bildites/Men_jeans_2.jpg',
-      women: '/bildites/Woman_jeans_2.jpg',
-    },
-  },
-  {
-    id: 2,
-    name: 'T-Shirt',
-    price: 19.99,
-    category: 'tshirt',
-    images: {
-      men: '/bildites/Men_tshirt_1.jpg',
-      women: '/bildites/Woman_tshirt_1.jpg',
-    },
-  },
-  {
-    id: 3,
-    name: 'Jacket',
-    price: 79.99,
-    category: 'jacket',
-    images: {
-      men: '/bildites/Men_jacket_1.jpg',
-      women: '/bildites/Woman_jacket_1.jpg',
-    },
-  },
-  {
-    id: 4,
-    name: 'Shoes',
-    price: 59.99,
-    category: 'shoes',
-    images: {
-      men: '/bildites/Men_shoes_1.jpg',
-      women: '/bildites/Woman_shoes_1.jpg',
-    },
-  },
-  {
-    id: 5,
-    name: 'Hat',
-    price: 15.99,
-    category: 'hat',
-    images: {
-      men: '/bildites/Men_hats_1.jpg',
-      women: '/bildites/Woman_hats_1.jpg',
-    },
-  },
-  {
-    id: 6,
-    name: 'Jeans 2',
-    price: 49.99,
-    category: 'jeans',
-    images: {
-      men: '/bildites/Men_jeans_1.jpg',
-      women: '/bildites/Woman_jeans_1.jpg',
-    },
-  },
-  {
-    id: 7,
-    name: 'T-Shirt 2',
-    price: 24.99,
-    category: 'tshirt',
-    images: {
-      men: '/bildites/Men_tshirt_2.jpg',
-      women: '/bildites/Woman_tshirt_2.jpg',
-    },
-  },
-  {
-    id: 8,
-    name: 'Jacket 2',
-    price: 99.99,
-    category: 'jacket',
-    images: {
-      men: '/bildites/Men_jacket_2.jpg',
-      women: '/bildites/Woman_jacket_2.jpg',
-    },
-  },
-  {
-    id: 9,
-    name: 'Shoes 2',
-    price: 64.99,
-    category: 'shoes',
-    images: {
-      men: '/bildites/Men_shoes_2.jpg',
-      women: '/bildites/Woman_shoes_2.jpg',
-    },
-  },
-  {
-    id: 10,
-    name: 'Hat 2',
-    price: 19.99,
-    category: 'hat',
-    images: {
-      men: '/bildites/Men_hats_2.jpg',
-      women: '/bildites/Woman_hats_2.jpg',
-    },
-  },
-]);
-
-const searchQuery = ref('')
-const minPrice = ref(0)
-const maxPrice = ref(1000)
-const selectedCategory = ref('all')
-const selectedGender = ref<'men' | 'women'>(props.category as 'men' | 'women')
-const showOnlyFavorites = ref(false)
+const searchQuery = ref("");
+const minPrice = ref(0);
+const maxPrice = ref(1000);
+const selectedCategory = ref("all");
+const selectedGender = ref<Gender>(props.category);
+const showOnlyFavorites = ref(false);
 
 const handleFavoriteClick = (id: number) => {
   if (!props.isLoggedIn) {
-    alert('Please log in to add favorites.')
-    return
+    alert("Please log in to add favorites.");
+    return;
   }
-  props.toggleFavorite(id)
-}
+  props.toggleFavorite(id);
+};
 
-const isFavorited = (id: number) => props.favorites.includes(id)
+const isFavorited = (id: number) => props.favorites.includes(id);
 
 const filteredProducts = computed(() => {
-  return products.value.filter((product) => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.value.toLowerCase())
-    const matchesPrice = product.price >= minPrice.value && product.price <= maxPrice.value
-    const matchesCategory = selectedCategory.value === 'all' || product.category === selectedCategory.value
-    const matchesFavorites = !showOnlyFavorites.value || props.favorites.includes(product.id)
-    return matchesSearch && matchesPrice && matchesCategory && matchesFavorites
-  })
-})
+  return props.products.filter((product) => {
+    const matchesSearch = product.name
+      .toLowerCase()
+      .includes(searchQuery.value.toLowerCase());
+    const matchesPrice =
+      product.price >= minPrice.value && product.price <= maxPrice.value;
+    const matchesCategory =
+      selectedCategory.value === "all" ||
+      product.category === selectedCategory.value;
+    const matchesFavorites =
+      !showOnlyFavorites.value || props.favorites.includes(product.id);
+
+    return matchesSearch && matchesPrice && matchesCategory && matchesFavorites;
+  });
+});
 </script>
+
 
 <style scoped>
 .filters {

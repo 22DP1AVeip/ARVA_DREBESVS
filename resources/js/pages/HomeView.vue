@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import NavBar from "../components/NavBar.vue";
-import Footer from "../components/Footer.vue";
+import Footer from "../components/NavFooter.vue";
 import MainHome from "../components/MainHome.vue";
 
 interface Product {

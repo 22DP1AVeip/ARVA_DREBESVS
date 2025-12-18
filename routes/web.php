@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Models\Product;
 
 // Root route named 'home'
 Route::get('/', function () {
@@ -9,12 +10,16 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/MenWear', function () {
-    return Inertia::render('MenView'); // Points to 'MenView.vue' in resources/js/pages/
-})->name('MenView.view');
+    return Inertia::render('MenView', [
+        'products' => Product::orderBy('id')->get(),
+    ]);
+});
 
 Route::get('/WomanWear', function () {
-    return Inertia::render('WomanView'); // Points to 'WomanView.vue' in resources/js/pages/
-})->name('WomanView.view');
+    return Inertia::render('WomanView', [
+        'products' => Product::orderBy('id')->get(),
+    ]);
+});
 
 Route::get('/favorites', function () {
     return Inertia::render('FavoritesView'); // The Vue page component name
