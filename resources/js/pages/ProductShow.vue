@@ -2,7 +2,8 @@
 import NavBar from "../components/NavBar.vue";
 import Footer from "../components/NavFooter.vue";
 import { computed } from "vue";
-import { usePage, Link } from "@inertiajs/vue3";
+import { usePage, Link, router } from "@inertiajs/vue3";
+import { ref } from "vue";
 
 type Gender = "men" | "women";
 
@@ -31,6 +32,16 @@ const selectedImage = computed(() => {
 
 // ✅ atpakaļ link (pēc view)
 const backHref = computed(() => (view.value === "women" ? "/WomanWear" : "/MenWear"));
+
+const flashGrey = ref(false);
+
+function addToCart() {
+  // vizuālais "flash"
+  flashGrey.value = true;
+  setTimeout(() => (flashGrey.value = false), 450);
+
+  router.post(`/cart/add/${product.value.id}`, { qty: 1 }, { preserveScroll: true });
+}
 </script>
 
 <template>
@@ -79,7 +90,7 @@ const backHref = computed(() => (view.value === "women" ? "/WomanWear" : "/MenWe
             <div class="hint">Izmēri un noliktava būs pēc variants/stock sistēmas.</div>
           </div>
 
-          <button class="add" disabled>Pievienot grozam (drīzumā)</button>
+          <button class="add" :class="{ flash: flashGrey }" @click="addToCart">Pievienot grozam</button>
         </div>
       </div>
     </div>
@@ -94,75 +105,108 @@ const backHref = computed(() => (view.value === "women" ? "/WomanWear" : "/MenWe
   margin: 0 auto;
   padding: 24px;
 }
+
 .breadcrumbs {
   margin-bottom: 16px;
 }
+
 .grid {
   display: grid;
   grid-template-columns: 1.2fr 1fr;
   gap: 28px;
 }
+
 @media (max-width: 900px) {
   .grid { grid-template-columns: 1fr; }
 }
+
 .images .main-img {
   background: #fff;
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid #eee;
 }
+
 .images .main-img img {
   width: 100%;
   height: 520px;
   object-fit: cover;
   display: block;
 }
+
 .info {
   background: #fff;
   border-radius: 12px;
   border: 1px solid #eee;
   padding: 18px;
 }
+
 .title {
   font-size: 22px;
   font-weight: 700;
   margin-bottom: 8px;
 }
+
 .price {
   font-size: 20px;
   font-weight: 700;
   margin-bottom: 12px;
   color: #e74c3c;
 }
+
 .meta {
   color: #333;
   font-size: 14px;
 }
+
 .sep {
   border: none;
   border-top: 1px solid #eee;
   margin: 16px 0;
 }
+
 .option { margin-bottom: 14px; }
+
 .label { font-weight: 600; margin-bottom: 6px; }
+
 .placeholder { color: #666; font-size: 14px; }
+
 .sizes { display: flex; gap: 8px; flex-wrap: wrap; }
+
 .size {
   padding: 10px 12px;
   border-radius: 10px;
   border: 1px solid #ddd;
   background: #fafafa;
 }
+
 .hint { margin-top: 8px; font-size: 12px; color: #777; }
+
 .add {
   width: 100%;
   margin-top: 12px;
   padding: 14px 16px;
-  border-radius: 12px;
-  border: none;
+  border-radius: 10px;
+  border: 2px solid #111;
   background: #111;
   color: #fff;
-  font-weight: 700;
-  opacity: 0.6;
+  font-weight: 800;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 220ms ease, border-color 220ms ease, transform 80ms ease;
 }
+
+.add:hover {
+  transform: translateY(-1px);
+}
+
+.add:active {
+  transform: translateY(0px);
+}
+
+.add.flash {
+  background: #8a8a8a;
+  border-color: #8a8a8a;
+}
+
 </style>

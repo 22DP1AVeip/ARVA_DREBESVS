@@ -6,6 +6,8 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
+use App\Models\Product;
+
 
 class HandleInertiaRequests extends Middleware
 {
@@ -51,6 +53,38 @@ class HandleInertiaRequests extends Middleware
                 'location' => $request->url(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            
+            
+            'cart' => function () {
+                $cart = session()->get('cart', []); // [id => qty]
+                $count = array_sum($cart);
+
+                $ids = array_keys($cart);
+                $products = $ids
+                ? Product::query()->whereIn('id', $ids)->get()->keyBy('id')
+                : collect();
+
+                $items = [];
+                foreach ($cart as $id => $qty) {
+                     $p = $products->get((int)$id);
+                         if (!$p) continue;
+
+                $items[] = [
+                    'id' => $p->id,
+                    'name' => $p->name,
+                    'price' => (float) $p->price,
+                    'image_men' => $p->image_men,
+                    'image_women' => $p->image_women,
+                    'qty' => (int) $qty,
+                ];
+}
+
+                return [
+                    'count' => $count,
+                    'items' => $items,
+                ];
+            },
         ];
     }
 }
+

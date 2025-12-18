@@ -78,19 +78,54 @@
     </div>
   </transition>
 
-  <div
-    v-if="isDropdownOpen || isCartVisible || isUserMenuOpen"
-    class="blur-background"
-    @click="closeAllMenus"
-  ></div>
+  <div v-if="isDropdownOpen || isCartVisible || isUserMenuOpen || showFavoritesBox" class="blur-background"@click="closeAllMenus"></div>
+
 
   <transition name="modal-fade">
-    <div v-if="isCartVisible" class="cart-modal">
-      <h2>Your Cart</h2>
-      <p>Items in Cart: {{ cartItemCount }}</p>
-      <button @click="toggleCart">Close</button>
+  <div v-if="isCartVisible" class="cart-modal">
+    <div class="cart-header">
+      <h2 class="cart-title">Grozs</h2>
+      <button class="cart-close" @click="toggleCart" aria-label="Close">✖</button>
     </div>
-  </transition>
+
+    <p v-if="cartItemCount === 0" class="cart-empty">Grozs ir tukšs.</p>
+
+    <div v-else class="cart-body">
+      <div class="cart-items">
+        <div v-for="item in cart.items" :key="item.id" class="cart-item">
+          <img class="cart-thumb" :src="item.image_men || item.image_women" alt="" />
+
+          <div class="cart-item-info">
+            <div class="cart-item-name">{{ item.name }}</div>
+            <div class="cart-item-meta">
+              €{{ Number(item.price).toFixed(2) }} × {{ item.qty }}
+            </div>
+          </div>
+
+          <button
+            class="cart-remove"@click="router.post(`/cart/remove/${item.id}`, {}, { preserveScroll: true })"aria-label="Remove">✖</button>
+        </div>
+      </div>
+
+      <div class="cart-summary">
+        <div class="summary-row">
+          <span>Kopā</span>
+          <strong>€{{ cartSubtotal.toFixed(2) }}</strong>
+        </div>
+      </div>
+
+      <div class="cart-actions">
+        <Link href="/cart" class="btn btn-secondary" @click="toggleCart">Apskatīt grozu</Link>
+        <Link href="/checkout" class="btn btn-primary" @click="toggleCart">Uz apmaksu</Link>
+      </div>
+
+      <button
+        class="btn btn-link"
+        @click="router.post('/cart/clear', {}, { preserveScroll: true })">>Iztukšot grozu</button>
+      </div>
+  </div>
+</transition>
+
 </template>
 
 <script setup lang="ts">
@@ -134,13 +169,19 @@ const props = withDefaults(
   }
 );
 
-const auth = usePage<PageProps>().props.auth ?? { user: null };
-
+const page = usePage<PageProps>();
+const auth = page.props.auth ?? { user: null };
+const cart = computed(() => (page.props as any).cart ?? { count: 0, items: [] });
+const cartItemCount = computed(() => cart.value.count ?? 0);
+const cartSubtotal = computed(() =>
+  (cart.value.items ?? []).reduce(
+    (sum: number, item: any) => sum + Number(item.price) * Number(item.qty),
+    0
+  )
+);
 const selectedGender = ref<"men" | "women">("men");
-
 const isDropdownOpen = ref(false);
 const activeCategory = ref("");
-const cartItemCount = ref(0);
 const isCartVisible = ref(false);
 const isUserMenuOpen = ref(false);
 const showFavoritesBox = ref(false);
@@ -198,6 +239,18 @@ const favoriteCount = computed(() => (props.favorites?.length ?? 0));
 
 
 <style scoped>
+:global(:root) {
+  --arva-ink: #072536;
+  --arva-teal: #13c4ab;
+  --arva-teal-dark: #06616d;
+  --arva-pink: #de7388;
+  --arva-purple: #97276b;
+  --arva-bg: #ffffff;
+  --arva-bg-soft: #f7fbfc;
+  --arva-border: rgba(7, 37, 54, 0.12);
+  --arva-shadow: 0 14px 40px rgba(7, 37, 54, 0.18);
+}
+
 .nav-bar {
   display: flex;
   justify-content: space-between;
@@ -206,7 +259,7 @@ const favoriteCount = computed(() => (props.favorites?.length ?? 0));
   background-color: white;
   border-bottom: 1px solid #ddd;
   position: relative;
-  z-index: 1000;
+  z-index: 2000;
 }
 
 .left-section {
@@ -448,31 +501,185 @@ const favoriteCount = computed(() => (props.favorites?.length ?? 0));
   cursor: pointer;
 }
 
-.blur-background {
+/*.blur-background {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  backdrop-filter: blur(4px);
-  background-color: rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  background-color: rgba(0, 0, 0, 0.18);
   z-index: 999;
-}
+}*/
 
 .cart-modal {
-  position: fixed;
-  top: 80px;
-  right: 40px;
-  background: white;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 3px 15px rgba(0,0,0,0.3);
-  z-index: 1001;
-  width: 300px;
-  max-height: 70vh;
-  overflow-y: auto;
+  background: var(--arva-bg);
+  color: var(--arva-ink);
+  border: 1px solid var(--arva-border);
+  border-radius: 14px;
+  box-shadow: var(--arva-shadow);
+  overflow: hidden;
 }
 
+
+.cart-header {
+  padding: 14px 14px 12px;
+  border-bottom: 1px solid rgba(7, 37, 54, 0.08);
+  position: relative;
+}
+
+.cart-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--arva-teal), var(--arva-pink), var(--arva-purple));
+  opacity: 0.35; /* “viegls” */
+}
+
+.cart-title {
+  color: var(--arva-ink);
+  font-weight: 900;
+  letter-spacing: 0.2px;
+}
+
+.cart-close {
+  color: var(--arva-ink);
+  border: 1px solid rgba(7, 37, 54, 0.12);
+  background: var(--arva-bg-soft);
+  border-radius: 10px;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 120ms ease, background 180ms ease;
+}
+
+.cart-close:hover { 
+  transform: translateY(-1px); 
+}
+
+.cart-close:active { 
+  transform: translateY(0); 
+}
+
+.cart-empty {
+  color: #555;
+  margin: 10px 0 0;
+}
+
+.cart-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cart-items { 
+  padding: 12px 14px; 
+}
+
+.cart-item {
+  background: var(--arva-bg-soft);
+  border: 1px solid rgba(7, 37, 54, 0.08);
+  border-radius: 12px;
+}
+
+.cart-thumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.cart-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.cart-item-name { 
+  color: var(--arva-ink); 
+}
+
+.cart-item-meta { 
+  color: rgba(7, 37, 54, 0.70); 
+}
+
+.cart-remove {
+  background: #fff;
+  border: 1px solid rgba(222, 115, 136, 0.35);
+  color: var(--arva-pink);
+  border-radius: 10px;
+  transition: transform 120ms ease, background 180ms ease;
+}
+
+.cart-remove:hover { 
+  transform: translateY(-1px); background: rgba(222,115,136,0.08); 
+}
+
+.cart-remove:active { 
+  transform: translateY(0); 
+}
+
+.summary-row span { 
+  color: rgba(7, 37, 54, 0.75); 
+}
+
+.summary-row strong { 
+  color: var(--arva-ink); 
+}
+
+.cart-actions { 
+  padding: 0 14px 12px; 
+}
+
+.btn {
+  border-radius: 12px;
+  font-weight: 900;
+  letter-spacing: 0.2px;
+}
+
+.btn-primary {
+  background: var(--arva-ink);
+  border-color: var(--arva-ink);
+  color: #fff;
+  transition: transform 120ms ease, opacity 180ms ease;
+}
+.btn-primary:hover { 
+  transform: translateY(-1px); 
+}
+
+.btn-primary:active { 
+  transform: translateY(0); opacity: 0.95; 
+}
+
+.btn-secondary {
+  background: #fff;
+  border-color: rgba(19, 196, 171, 0.55);
+  color: var(--arva-teal-dark);
+  transition: transform 120ms ease, background 180ms ease;
+}
+.btn-secondary:hover { 
+  transform: translateY(-1px); background: rgba(19,196,171,0.08); 
+}
+
+.btn-secondary:active { 
+  transform: translateY(0); 
+}
+
+.btn-link {
+  color: rgba(7, 37, 54, 0.65);
+}
+.btn-link:hover { color: 
+  var(--arva-ink); 
+}
+
+.cart-count {
+  background: var(--arva-pink);
+}
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.3s ease;
 }
