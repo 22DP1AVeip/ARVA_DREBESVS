@@ -2,35 +2,29 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Models\Product;
+use App\Http\Controllers\ProductPageController;
 
-// Root route named 'home'
+// Home
 Route::get('/', function () {
-    return Inertia::render('HomeView'); // Points to 'HomeView.vue' in resources/js/pages/
+    return Inertia::render('HomeView');
 })->name('home');
 
-Route::get('/MenWear', function () {
-    return Inertia::render('MenView', [
-        'products' => Product::orderBy('id')->get(),
-    ]);
-});
+// Product pages (ONLY controller versions)
+Route::get('/MenWear', [ProductPageController::class, 'men'])->name('menwear');
+Route::get('/WomanWear', [ProductPageController::class, 'women'])->name('womanwear');
 
-Route::get('/WomanWear', function () {
-    return Inertia::render('WomanView', [
-        'products' => Product::orderBy('id')->get(),
-    ]);
-});
-
+// Favorites
 Route::get('/favorites', function () {
-    return Inertia::render('FavoritesView'); // The Vue page component name
+    return Inertia::render('FavoritesView');
 })->name('favorites');
 
+// Admin
 Route::middleware(['auth', 'is_admin'])->group(function () {
     Route::get('/admin', function () {
-        return view('admin.dashboard'); // create this view
+        return view('admin.dashboard');
     })->name('admin.dashboard');
 });
 
-// Include other routes like auth and settings
+// Other routes
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

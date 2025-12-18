@@ -9,12 +9,12 @@
       <option value="shoes">Shoes</option>
     </select>
 
-    <select v-model="selectedGender" class="filter-select">
-      <option value="men">Men</option>
-      <option value="women">Women</option>
-    </select>
-
-    <input type="text" placeholder="Search..." v-model="searchQuery" class="search-input" />
+    <input
+      type="text"
+      placeholder="Search..."
+      v-model="searchQuery"
+      class="search-input"
+    />
 
     <div class="price-range">
       <label>
@@ -27,18 +27,21 @@
       </label>
     </div>
 
+    <!-- FAVORITES filtrs pagaidām IZSLĒGTS, kamēr favorīti nav DB
     <label class="favorites-toggle">
       <input type="checkbox" v-model="showOnlyFavorites" :disabled="!isLoggedIn" />
       Show only favorites
     </label>
+    -->
   </div>
 
   <div class="product-container">
-    <div class="product-card" v-for="product in filteredProducts" :key="product.id">
+    <div class="product-card" v-for="product in products" :key="product.id">
       <img :src="product.images[selectedGender]" :alt="product.name" class="product-img" />
       <div class="product-info">
         <h3 class="product-name">{{ product.name }}</h3>
         <p class="product-price">${{ product.price.toFixed(2) }}</p>
+
         <div
           class="favorite-icon"
           @click="handleFavoriteClick(product.id)"
@@ -72,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, watch } from "vue";
 
 type Gender = "men" | "women";
 
@@ -81,10 +84,7 @@ interface UiProduct {
   name: string;
   price: number;
   category: string;
-  images: {
-    men: string;
-    women: string;
-  };
+  images: { men: string; women: string };
 }
 
 const props = defineProps<{
@@ -93,13 +93,38 @@ const props = defineProps<{
   toggleFavorite: (id: number) => void;
   category: Gender;
   products: UiProduct[];
+  filters?: {
+    search?: string;
+    category?: string;
+    minPrice?: number;
+    maxPrice?: number;
+  };
 }>();
 
-const searchQuery = ref("");
-const minPrice = ref(0);
-const maxPrice = ref(1000);
-const selectedCategory = ref("all");
+const emit = defineEmits<{
+  (e: "filtersChanged", v: { search: string; category: string; minPrice: number; maxPrice: number }): void;
+}>();
+
+const searchQuery = ref(props.filters?.search ?? "");
+const minPrice = ref(Number(props.filters?.minPrice ?? 0));
+const maxPrice = ref(Number(props.filters?.maxPrice ?? 1000));
+const selectedCategory = ref(props.filters?.category ?? "all");
+
+watch(
+  () => props.filters,
+  (f) => {
+    searchQuery.value = f?.search ?? "";
+    selectedCategory.value = f?.category ?? "all";
+    minPrice.value = Number(f?.minPrice ?? 0);
+    maxPrice.value = Number(f?.maxPrice ?? 1000);
+  },
+  { immediate: true, deep: true }
+);
+
+// Dzimumu nosaka lapa (MenView/WomanView). Te nav select, lai nesajauc ar backend filtriem.
 const selectedGender = ref<Gender>(props.category);
+
+// Atstājam, bet šobrīd nelietojam (favorites filtrs būs, kad būs DB)
 const showOnlyFavorites = ref(false);
 
 const handleFavoriteClick = (id: number) => {
@@ -112,26 +137,34 @@ const handleFavoriteClick = (id: number) => {
 
 const isFavorited = (id: number) => props.favorites.includes(id);
 
-const filteredProducts = computed(() => {
-  return props.products.filter((product) => {
-    const matchesSearch = product.name
-      .toLowerCase()
-      .includes(searchQuery.value.toLowerCase());
-    const matchesPrice =
-      product.price >= minPrice.value && product.price <= maxPrice.value;
-    const matchesCategory =
-      selectedCategory.value === "all" ||
-      product.category === selectedCategory.value;
-    const matchesFavorites =
-      !showOnlyFavorites.value || props.favorites.includes(product.id);
+let searchTimer: any = null;
 
-    return matchesSearch && matchesPrice && matchesCategory && matchesFavorites;
+// Search – lēnāk
+watch(searchQuery, () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    emit("filtersChanged", {
+      search: searchQuery.value,
+      category: selectedCategory.value,
+      minPrice: minPrice.value,
+      maxPrice: maxPrice.value,
+    });
+  }, 600);
+});
+
+// Category/Price – ātri
+watch([selectedCategory, minPrice, maxPrice], () => {
+  emit("filtersChanged", {
+    search: searchQuery.value,
+    category: selectedCategory.value,
+    minPrice: minPrice.value,
+    maxPrice: maxPrice.value,
   });
 });
 </script>
 
-
 <style scoped>
+/* (tavs existing CSS paliek 1:1) */
 .filters {
   display: flex;
   flex-wrap: wrap;
@@ -145,14 +178,12 @@ const filteredProducts = computed(() => {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-/* Make text inside filters black */
 .filters select,
 .filters input,
 .filters label {
   color: black;
 }
 
-/* Darker placeholder text for better visibility */
 .filters input::placeholder {
   color: #555;
 }
@@ -309,7 +340,7 @@ const filteredProducts = computed(() => {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .product-card {
     width: calc(50% - 30px);
   }
