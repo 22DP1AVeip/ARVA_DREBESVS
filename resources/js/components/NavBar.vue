@@ -120,11 +120,19 @@ interface PageProps extends InertiaPageProps {
   [key: string]: any;
 }
 
-const props = defineProps<{
-  favorites: number[];
-  toggleFavorite: (id: number) => void;
-  products: Product[];
-}>();
+// ✅ Props tagad NAV obligāti (ar defaultiem)
+const props = withDefaults(
+  defineProps<{
+    favorites?: number[];
+    toggleFavorite?: (id: number) => void;
+    products?: Product[];
+  }>(),
+  {
+    favorites: () => [],
+    toggleFavorite: () => () => {},
+    products: () => [],
+  }
+);
 
 const auth = usePage<PageProps>().props.auth ?? { user: null };
 
@@ -185,8 +193,9 @@ const favoriteProducts = computed(() => {
   return prods.filter((product) => favs.includes(product.id));
 });
 
-const favoriteCount = computed(() => props.favorites?.length ?? 0);
+const favoriteCount = computed(() => (props.favorites?.length ?? 0));
 </script>
+
 
 <style scoped>
 .nav-bar {

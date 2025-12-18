@@ -36,7 +36,12 @@
   </div>
 
   <div class="product-container">
-    <div class="product-card" v-for="product in products" :key="product.id">
+  <Link
+      class="product-card"
+      v-for="product in products"
+      :key="product.id"
+      :href="`/product/${product.id}?view=${category}`"
+      >
       <img :src="product.images[selectedGender]" :alt="product.name" class="product-img" />
       <div class="product-info">
         <h3 class="product-name">{{ product.name }}</h3>
@@ -70,12 +75,13 @@
           </svg>
         </div>
       </div>
-    </div>
+    </Link>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from "vue";
+import { Link } from "@inertiajs/vue3";
 
 type Gender = "men" | "women";
 
@@ -164,7 +170,12 @@ watch([selectedCategory, minPrice, maxPrice], () => {
 </script>
 
 <style scoped>
-/* (tavs existing CSS paliek 1:1) */
+
+.product-card {
+  text-decoration: none;
+  color: inherit;
+}
+
 .filters {
   display: flex;
   flex-wrap: wrap;
