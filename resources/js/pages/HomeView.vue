@@ -16,12 +16,12 @@ interface Product {
 const products = ref<Product[]>([
   {
     id: 1,
-    name: "Classic T-Shirt",
+    name: "Klasisks T-krekls",
     images: { men: "/images/products/tshirt_men.jpg", women: "/images/products/tshirt_women.jpg" }
   },
   {
     id: 2,
-    name: "Leather Jacket",
+    name: "Ādas jaka",
     images: { men: "/images/products/jacket_men.jpg", women: "/images/products/jacket_women.jpg" }
   }
 ])

@@ -22,7 +22,7 @@ const page = usePage();
 const product = computed(() => page.props.product as DbProduct);
 const view = computed(() => (page.props.view as Gender) ?? "men");
 
-// ✅ tikai viena bilde atkarībā no view
+// tikai viena bilde atkarībā no view
 const selectedImage = computed(() => {
   if (view.value === "women") {
     return product.value.image_women ?? product.value.image_men ?? "";
@@ -30,7 +30,7 @@ const selectedImage = computed(() => {
   return product.value.image_men ?? product.value.image_women ?? "";
 });
 
-// ✅ atpakaļ link (pēc view)
+// atpakaļ links (pēc view)
 const backHref = computed(() => (view.value === "women" ? "/WomanWear" : "/MenWear"));
 
 const flashGrey = ref(false);
@@ -64,7 +64,7 @@ function addToCart() {
         <!-- RIGHT: info -->
         <div class="info">
           <h1 class="title">{{ product.name }}</h1>
-          <div class="price">${{ Number(product.price).toFixed(2) }}</div>
+          <div class="price">€{{ Number(product.price).toFixed(2) }}</div>
 
           <div class="meta">
             <div><strong>Kategorija:</strong> {{ product.category }}</div>
@@ -87,7 +87,7 @@ function addToCart() {
               <button class="size" disabled>L</button>
               <button class="size" disabled>XL</button>
             </div>
-            <div class="hint">Izmēri un noliktava būs pēc variants/stock sistēmas.</div>
+            <div class="hint">Izmēri un noliktava būs pēc variantu/krājumu sistēmas.</div>
           </div>
 
           <button class="add" :class="{ flash: flashGrey }" @click="addToCart">Pievienot grozam</button>
@@ -208,5 +208,4 @@ function addToCart() {
   background: #8a8a8a;
   border-color: #8a8a8a;
 }
-
 </style>

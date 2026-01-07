@@ -76,8 +76,8 @@ function updatePassword() {
 
       <!-- PLACEHOLDER FAVORITES -->
       <section class="card muted">
-        <h2>Favorites (drīzumā)</h2>
-        <p>Šeit drīzumā būs tavi favorīti ❤️</p>
+        <h2>Favorīti (drīzumā)</h2>
+        <p>Šeit drīzumā būs tavi favorīti.</p>
       </section>
     </div>
 

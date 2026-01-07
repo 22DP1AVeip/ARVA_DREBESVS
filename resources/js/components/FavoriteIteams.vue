@@ -11,9 +11,9 @@ interface Product {
 
 const favorites = ref<number[]>([])
 const products = ref<Product[]>([
-  { id: 1, name: 'Black Hoodie', images: { men: '/products/hoodie1.jpg' } },
-  { id: 2, name: 'White T-Shirt', images: { men: '/products/tshirt1.jpg' } },
-  { id: 3, name: 'Grey Pants', images: { men: '/products/pants1.jpg' } }
+  { id: 1, name: 'Melns džemperis', images: { men: '/products/hoodie1.jpg' } },
+  { id: 2, name: 'Balts T-krekls', images: { men: '/products/tshirt1.jpg' } },
+  { id: 3, name: 'Pelēkas bikses', images: { men: '/products/pants1.jpg' } }
 ])
 
 const favoriteProducts = ref<Product[]>([])
@@ -29,8 +29,8 @@ onMounted(() => {
 
 <template>
   <div class="favorites-box">
-    <h2>Your Favorites</h2>
-    <div v-if="favoriteProducts.length === 0">No favorites yet.</div>
+    <h2>Tavi favorīti</h2>
+    <div v-if="favoriteProducts.length === 0">Vēl nav favorītu.</div>
     <div class="grid">
       <div v-for="item in favoriteProducts" :key="item.id" class="card">
         <img :src="item.images.men" :alt="item.name" class="img" />

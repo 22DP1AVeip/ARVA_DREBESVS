@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // handleSubscribe function to prevent errors
 const handleSubscribe = () => {
-    alert("Subscribed!");
+    alert("Abonēts!");
 };
 </script>
 
@@ -10,7 +10,7 @@ const handleSubscribe = () => {
     <footer class="footer">
         <div class="footer-content">
             <div class="social-media">
-                <h3>SOCIAL MEDIA</h3>
+                <h3>SOCIĀLIE TĪKLI</h3>
                 <div class="social-icons">
                     <img src="/bildites/Instag_Icon.png" alt="Instagram" />
                     <img src="/bildites/TikTok_Icon.png" alt="TikTok" />
@@ -20,26 +20,26 @@ const handleSubscribe = () => {
             </div>
 
             <div class="useful-links">
-                <h3>LINKS</h3>
+                <h3>SAITES</h3>
                 <ul>
-                    <li><a href="/about-us">About Us</a></li>
-                    <li><a href="/contact">Contact</a></li>
-                    <li><a href="/privacy-policy">Privacy Policy</a></li>
-                    <li><a href="/terms-of-service">Terms of Service</a></li>
+                    <li><a href="/about-us">Par mums</a></li>
+                    <li><a href="/contact">Kontakti</a></li>
+                    <li><a href="/privacy-policy">Privātuma politika</a></li>
+                    <li><a href="/terms-of-service">Pakalpojuma noteikumi</a></li>
                 </ul>
             </div>
 
             <div class="newsletter">
-                <h3>GET THE LATEST DEALS</h3>
-                <p>Get the latest updates and offers delivered straight to your inbox.</p>
+                <h3>SAŅEM JAUNĀKOS PIEDĀVĀJUMUS</h3>
+                <p>Saņem jaunākās ziņas un piedāvājumus tieši savā e-pastā.</p>
                 <form @submit.prevent="handleSubscribe">
-                    <input type="email" placeholder="Enter your email" required />
-                    <button type="submit">Subscribe</button>
+                    <input type="email" placeholder="Ievadi savu e-pastu" required />
+                    <button type="submit">Pierakstīties</button>
                 </form>
             </div>
         </div>
 
-        <p>&copy; 2024 AVDP. All rights reserved.</p>
+        <p>&copy; 2024 AVDP. Visas tiesības aizsargātas.</p>
     </footer>
 </template>
 

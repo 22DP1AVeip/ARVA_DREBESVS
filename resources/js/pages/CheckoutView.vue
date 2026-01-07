@@ -68,7 +68,7 @@
           <div class="radio-row">
             <label class="radio">
               <input type="radio" value="card" v-model="form.payment_method" />
-              Karte (fake)
+              Karte (demo)
             </label>
 
             <label class="radio">
@@ -84,7 +84,7 @@
           </button>
 
           <p class="hint">
-            Šī ir placeholder checkout lapa. Maksājums vēl nav pieslēgts.
+            Šī ir demo apmaksas lapa. Maksājumi vēl nav pieslēgti.
           </p>
         </form>
       </div>

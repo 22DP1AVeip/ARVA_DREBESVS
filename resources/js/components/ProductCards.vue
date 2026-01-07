@@ -1,28 +1,28 @@
 <template>
   <div class="filters">
     <select v-model="selectedCategory" class="filter-select">
-      <option value="all">All Categories</option>
-      <option value="tshirt">T-Shirts</option>
-      <option value="jeans">Jeans</option>
-      <option value="jacket">Jackets</option>
-      <option value="hat">Hats</option>
-      <option value="shoes">Shoes</option>
+      <option value="all">Visas kategorijas</option>
+      <option value="tshirt">T-krekli</option>
+      <option value="jeans">Džinsi</option>
+      <option value="jacket">Jakas</option>
+      <option value="hat">Cepures</option>
+      <option value="shoes">Apavi</option>
     </select>
 
     <input
       type="text"
-      placeholder="Search..."
+      placeholder="Meklēt..."
       v-model="searchQuery"
       class="search-input"
     />
 
     <div class="price-range">
       <label>
-        Min Price:
+        Min. cena:
         <input type="number" v-model.number="minPrice" class="price-input" min="0" />
       </label>
       <label>
-        Max Price:
+        Maks. cena:
         <input type="number" v-model.number="maxPrice" class="price-input" min="0" />
       </label>
     </div>
@@ -45,7 +45,7 @@
       <img :src="product.images[selectedGender]" :alt="product.name" class="product-img" />
       <div class="product-info">
         <h3 class="product-name">{{ product.name }}</h3>
-        <p class="product-price">${{ product.price.toFixed(2) }}</p>
+        <p class="product-price">€{{ product.price.toFixed(2) }}</p>
 
         <div
           class="favorite-icon"
@@ -135,7 +135,7 @@ const showOnlyFavorites = ref(false);
 
 const handleFavoriteClick = (id: number) => {
   if (!props.isLoggedIn) {
-    alert("Please log in to add favorites.");
+    alert("Lūdzu, piesakieties, lai pievienotu favorītus.");
     return;
   }
   props.toggleFavorite(id);

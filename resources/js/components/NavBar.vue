@@ -5,23 +5,23 @@
         <img src="/bildites/Logo_Arva.png" class="logoarva" alt="Logo" />
       </a>
 
-      <button class="dropdown-button" @click="toggleDropdown" aria-label="Toggle Menu">☰</button>
+      <button class="dropdown-button" @click="toggleDropdown" aria-label="Atvērt izvēlni">☰</button>
     </div>
 
     <div class="right-section">
-      <button class="basket-button" @click="toggleCart" aria-label="Cart">
-        <img src="/bildites/basket_icon.png" alt="Basket" class="basket-icon" />
+      <button class="basket-button" @click="toggleCart" aria-label="Grozs">
+        <img src="/bildites/basket_icon.png" alt="Grozs" class="basket-icon" />
         <span v-if="cartItemCount > 0" class="cart-count">{{ cartItemCount }}</span>
       </button>
 
       <div class="auth-buttons" v-if="!auth?.user">
-        <Link href="/register" class="signup-button">Sign Up</Link>
-        <Link href="/login" class="login-button">Log In</Link>
+        <Link href="/register" class="signup-button">Reģistrēties</Link>
+        <Link href="/login" class="login-button">Ienākt</Link>
       </div>
 
       <div class="auth-logged-in" v-else>
         <button class="username-button" @click="toggleUserMenu">
-          {{ auth.user.name }} ▼
+          {{ auth.user.name }} ▾
         </button>
 
         <transition name="dropdown-fade">
@@ -43,35 +43,35 @@
           class="category-link"
           @click.prevent="toggleCategory('woman')"
           :class="{ active: activeCategory === 'woman' }"
-        >WOMAN</a>
+        >SIEVIEŠU</a>
         <a
           href="#"
           class="category-link"
           @click.prevent="toggleCategory('men')"
           :class="{ active: activeCategory === 'men' }"
-        >MEN</a>
+        >VĪRIEŠU</a>
         <a
           href="#"
           class="category-link"
           @click.prevent="toggleCategory('accessories')"
           :class="{ active: activeCategory === 'accessories' }"
-        >ACCESSORIES</a>
+        >AKSESUĀRI</a>
       </div>
 
       <div class="menu-links">
-        <h3>FEATURED PRODUCTS</h3>
-        <a href="#" class="menu-link">Top Picks</a>
-        <a href="#" class="menu-link">New Arrivals</a>
-        <a href="#" class="menu-link">Best Sellers</a>
-        <a href="#" class="menu-link">Limited Edition</a>
+        <h3>IZCĒLTI PRODUKTI</h3>
+        <a href="#" class="menu-link">Populārākie</a>
+        <a href="#" class="menu-link">Jaunumi</a>
+        <a href="#" class="menu-link">Vispirktākie</a>
+        <a href="#" class="menu-link">Limitētā kolekcija</a>
       </div>
 
       <div class="menu-links">
-        <h3>CUSTOMER SUPPORT</h3>
-        <a href="#" class="menu-link">FAQ</a>
-        <a href="#" class="menu-link">Contact Us</a>
-        <a href="#" class="menu-link">Returns</a>
-        <a href="#" class="menu-link">Shipping Info</a>
+        <h3>KLIENTU ATBALSTS</h3>
+        <a href="#" class="menu-link">BUJ</a>
+        <a href="#" class="menu-link">Sazinies ar mums</a>
+        <a href="#" class="menu-link">Atgriešana</a>
+        <a href="#" class="menu-link">Piegādes informācija</a>
       </div>
     </div>
   </transition>
@@ -86,7 +86,7 @@
     <div v-if="isCartVisible" class="cart-modal">
       <div class="cart-header">
         <h2 class="cart-title">Grozs</h2>
-        <button class="cart-close" @click="toggleCart" aria-label="Close">✖</button>
+        <button class="cart-close" @click="toggleCart" aria-label="Aizvērt">x</button>
       </div>
 
       <p v-if="cartItemCount === 0" class="cart-empty">Grozs ir tukšs.</p>
@@ -99,16 +99,17 @@
             <div class="cart-item-info">
               <div class="cart-item-name">{{ item.name }}</div>
               <div class="cart-item-meta">
-                €{{ Number(item.price).toFixed(2) }} × {{ item.qty }}
+                €{{ Number(item.price).toFixed(2) }} x {{ item.qty }}
               </div>
             </div>
 
             <button
               class="cart-remove"
               @click="router.post(`/cart/remove/${item.id}`, {}, { preserveScroll: true })"
-              aria-label="Remove"
+              aria-label="Noņemt"
+              title="Noņemt"
             >
-              ✖
+              x
             </button>
           </div>
         </div>
@@ -409,16 +410,22 @@ function closeAllMenus() {
 
 /* ===== CART ===== */
 .cart-modal {
+  position: fixed;
+  top: 78px;
+  right: 20px;
+  width: min(420px, 92vw);
+  max-height: calc(100vh - 110px);
   background: var(--arva-bg);
   color: var(--arva-ink);
   border: 1px solid var(--arva-border);
-  border-radius: 14px;
-  box-shadow: var(--arva-shadow);
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(7, 37, 54, 0.22);
   overflow: hidden;
+  z-index: 10001;
 }
 
 .cart-header {
-  padding: 14px 14px 12px;
+  padding: 14px 16px 12px;
   border-bottom: 1px solid rgba(7, 37, 54, 0.08);
   position: relative;
   display: flex;
@@ -445,25 +452,28 @@ function closeAllMenus() {
 }
 
 .cart-empty {
-  color: #555;
-  margin: 10px 14px 14px;
+  color: rgba(7, 37, 54, 0.7);
+  margin: 10px 16px 16px;
 }
 
 .cart-body {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  max-height: calc(100vh - 210px);
+  overflow: hidden;
 }
 
 .cart-items {
-  padding: 12px 14px;
+  padding: 12px 16px;
+  overflow-y: auto;
 }
 
 .cart-item {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px;
+  padding: 10px 12px;
   background: var(--arva-bg-soft);
   border: 1px solid rgba(7, 37, 54, 0.08);
   border-radius: 12px;
@@ -473,7 +483,8 @@ function closeAllMenus() {
   width: 56px;
   height: 56px;
   object-fit: cover;
-  border-radius: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(7, 37, 54, 0.08);
 }
 
 .cart-item-info {
@@ -491,29 +502,7 @@ function closeAllMenus() {
   font-size: 14px;
 }
 
-/* SIMPLE BLACK X */
 .cart-close {
-  all: unset;
-  cursor: pointer;
-  width: 34px;
-  height: 34px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: #000;
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 1;
-  border-radius: 8px;
-}
-.cart-close:hover {
-  background: rgba(7, 37, 54, 0.06);
-}
-.cart-close:active {
-  background: rgba(7, 37, 54, 0.1);
-}
-
-.cart-remove {
   all: unset;
   cursor: pointer;
   width: 30px;
@@ -522,16 +511,37 @@ function closeAllMenus() {
   align-items: center;
   justify-content: center;
   color: #000;
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 800;
   line-height: 1;
-  border-radius: 8px;
+  border-radius: 999px;
+}
+.cart-close:hover {
+  background: rgba(7, 37, 54, 0.08);
+}
+.cart-close:active {
+  background: rgba(7, 37, 54, 0.12);
+}
+
+.cart-remove {
+  all: unset;
+  cursor: pointer;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1;
+  border-radius: 999px;
 }
 .cart-remove:hover {
-  background: rgba(7, 37, 54, 0.06);
+  background: rgba(7, 37, 54, 0.08);
 }
 .cart-remove:active {
-  background: rgba(7, 37, 54, 0.1);
+  background: rgba(7, 37, 54, 0.12);
 }
 
 .cart-close:focus-visible,
@@ -541,7 +551,7 @@ function closeAllMenus() {
 }
 
 .cart-summary {
-  padding: 0 14px;
+  padding: 0 16px;
 }
 
 .summary-row {
@@ -560,7 +570,7 @@ function closeAllMenus() {
 }
 
 .cart-actions {
-  padding: 0 14px 12px;
+  padding: 0 16px 12px;
   display: flex;
   gap: 10px;
 }
@@ -608,7 +618,7 @@ function closeAllMenus() {
   color: rgba(7, 37, 54, 0.65);
   background: transparent;
   border: none;
-  padding: 0 14px 14px;
+  padding: 0 16px 16px;
   cursor: pointer;
   text-align: left;
 }

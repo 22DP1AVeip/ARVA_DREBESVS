@@ -17,20 +17,20 @@ const submit = () => {
 </script>
 
 <template>
-    <AuthLayout title="Verify email" description="Please verify your email address by clicking on the link we just emailed to you.">
-        <Head title="Email verification" />
+    <AuthLayout title="Apstiprini e-pastu" description="Lūdzu, apstiprini savu e-pasta adresi, noklikšķinot uz saites, ko tikko nosūtījām.">
+        <Head title="E-pasta apstiprināšana" />
 
         <div v-if="status === 'verification-link-sent'" class="mb-4 text-center text-sm font-medium text-green-600">
-            A new verification link has been sent to the email address you provided during registration.
+            Jauna apstiprināšanas saite ir nosūtīta uz tavu e-pasta adresi.
         </div>
 
         <form @submit.prevent="submit" class="space-y-6 text-center">
             <Button :disabled="form.processing" variant="secondary">
                 <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
-                Resend verification email
+                Nosūtīt apstiprināšanas e-pastu vēlreiz
             </Button>
 
-            <TextLink :href="route('logout')" method="post" as="button" class="mx-auto block text-sm"> Log out </TextLink>
+            <TextLink :href="route('logout')" method="post" as="button" class="mx-auto block text-sm"> Izrakstīties </TextLink>
         </form>
     </AuthLayout>
 </template>
