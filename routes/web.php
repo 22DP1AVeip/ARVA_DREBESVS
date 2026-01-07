@@ -6,6 +6,7 @@ use App\Http\Controllers\ProductPageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ProfileController;
 
 
 Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
@@ -43,6 +44,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 });
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile/{section?}', [ProfileController::class, 'show'])
+        ->where('section', 'orders|favorites|settings')
+        ->name('profile');
+
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::put('/profile/password', [ProfileController::class, 'password'])->name('profile.password');
+});
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
