@@ -4,7 +4,8 @@
       <a href="/" class="logo-container">
         <img src="/bildites/Logo_Arva.png" class="logoarva" alt="Logo" />
       </a>
-      <button class="dropdown button" @click="toggleDropdown" aria-label="Toggle Menu">☰</button> 
+
+      <button class="dropdown-button" @click="toggleDropdown" aria-label="Toggle Menu">☰</button>
     </div>
 
     <div class="right-section">
@@ -12,25 +13,6 @@
         <img src="/bildites/basket_icon.png" alt="Basket" class="basket-icon" />
         <span v-if="cartItemCount > 0" class="cart-count">{{ cartItemCount }}</span>
       </button>
-
-      <div class="favorites-container" @mouseleave="showFavoritesBox = false">
-        <button class="favorites-button" @click="toggleFavoritesBox" aria-label="Favorites">
-          ❤️ Favorites ({{ favoriteCount }})
-        </button>
-
-        <transition name="fade">
-          <div v-if="showFavoritesBox" class="favorites-box">
-            <p v-if="favoriteProducts.length === 0" class="empty-msg">No favorites yet.</p>
-            <ul v-else>
-              <li v-for="product in favoriteProducts" :key="product.id" class="fav-item">
-                <img :src="product.images[selectedGender]" alt="" class="fav-thumb" />
-                <span>{{ product.name }}</span>
-                <button @click="toggleFavorite(product.id)" class="remove-fav" aria-label="Remove favorite">✖</button>
-              </li>
-            </ul>
-          </div>
-        </transition>
-      </div>
 
       <div class="auth-buttons" v-if="!auth?.user">
         <Link href="/register" class="signup-button">Sign Up</Link>
@@ -45,7 +27,6 @@
         <transition name="dropdown-fade">
           <div v-if="isUserMenuOpen" class="user-dropdown-menu">
             <Link href="/profile/edit" class="dropdown-item" @click="closeUserMenu">Edit Profile</Link>
-            <Link href="/favorites" class="dropdown-item" @click="closeUserMenu">Favorites</Link>
             <button class="dropdown-item logout-item" @click="logout">Logout</button>
           </div>
         </transition>
@@ -57,10 +38,26 @@
     <div v-if="isDropdownOpen" class="dropdown-menu">
       <button class="close-button" @click="toggleDropdown">✖</button>
       <div class="categories">
-        <a href="#" class="category-link" @click.prevent="toggleCategory('woman')" :class="{ active: activeCategory === 'woman' }">WOMAN</a>
-        <a href="#" class="category-link" @click.prevent="toggleCategory('men')" :class="{ active: activeCategory === 'men' }">MEN</a>
-        <a href="#" class="category-link" @click.prevent="toggleCategory('accessories')" :class="{ active: activeCategory === 'accessories' }">ACCESSORIES</a>
+        <a
+          href="#"
+          class="category-link"
+          @click.prevent="toggleCategory('woman')"
+          :class="{ active: activeCategory === 'woman' }"
+        >WOMAN</a>
+        <a
+          href="#"
+          class="category-link"
+          @click.prevent="toggleCategory('men')"
+          :class="{ active: activeCategory === 'men' }"
+        >MEN</a>
+        <a
+          href="#"
+          class="category-link"
+          @click.prevent="toggleCategory('accessories')"
+          :class="{ active: activeCategory === 'accessories' }"
+        >ACCESSORIES</a>
       </div>
+
       <div class="menu-links">
         <h3>FEATURED PRODUCTS</h3>
         <a href="#" class="menu-link">Top Picks</a>
@@ -68,6 +65,7 @@
         <a href="#" class="menu-link">Best Sellers</a>
         <a href="#" class="menu-link">Limited Edition</a>
       </div>
+
       <div class="menu-links">
         <h3>CUSTOMER SUPPORT</h3>
         <a href="#" class="menu-link">FAQ</a>
@@ -78,54 +76,61 @@
     </div>
   </transition>
 
-  <div v-if="isDropdownOpen || isCartVisible || isUserMenuOpen || showFavoritesBox" class="blur-background"@click="closeAllMenus"></div>
-
+  <div
+    v-if="isDropdownOpen || isCartVisible || isUserMenuOpen"
+    class="blur-background"
+    @click="closeAllMenus"
+  ></div>
 
   <transition name="modal-fade">
-  <div v-if="isCartVisible" class="cart-modal">
-    <div class="cart-header">
-      <h2 class="cart-title">Grozs</h2>
-      <button class="cart-close" @click="toggleCart" aria-label="Close">✖</button>
-    </div>
+    <div v-if="isCartVisible" class="cart-modal">
+      <div class="cart-header">
+        <h2 class="cart-title">Grozs</h2>
+        <button class="cart-close" @click="toggleCart" aria-label="Close">✖</button>
+      </div>
 
-    <p v-if="cartItemCount === 0" class="cart-empty">Grozs ir tukšs.</p>
+      <p v-if="cartItemCount === 0" class="cart-empty">Grozs ir tukšs.</p>
 
-    <div v-else class="cart-body">
-      <div class="cart-items">
-        <div v-for="item in cart.items" :key="item.id" class="cart-item">
-          <img class="cart-thumb" :src="item.image_men || item.image_women" alt="" />
+      <div v-else class="cart-body">
+        <div class="cart-items">
+          <div v-for="item in cart.items" :key="item.id" class="cart-item">
+            <img class="cart-thumb" :src="item.image_men || item.image_women" alt="" />
 
-          <div class="cart-item-info">
-            <div class="cart-item-name">{{ item.name }}</div>
-            <div class="cart-item-meta">
-              €{{ Number(item.price).toFixed(2) }} × {{ item.qty }}
+            <div class="cart-item-info">
+              <div class="cart-item-name">{{ item.name }}</div>
+              <div class="cart-item-meta">
+                €{{ Number(item.price).toFixed(2) }} × {{ item.qty }}
+              </div>
             </div>
+
+            <button
+              class="cart-remove"
+              @click="router.post(`/cart/remove/${item.id}`, {}, { preserveScroll: true })"
+              aria-label="Remove"
+            >
+              ✖
+            </button>
           </div>
-
-          <button
-            class="cart-remove"@click="router.post(`/cart/remove/${item.id}`, {}, { preserveScroll: true })"aria-label="Remove">✖</button>
         </div>
-      </div>
 
-      <div class="cart-summary">
-        <div class="summary-row">
-          <span>Kopā</span>
-          <strong>€{{ cartSubtotal.toFixed(2) }}</strong>
+        <div class="cart-summary">
+          <div class="summary-row">
+            <span>Kopā</span>
+            <strong>€{{ cartSubtotal.toFixed(2) }}</strong>
+          </div>
         </div>
-      </div>
 
-      <div class="cart-actions">
-        <Link href="/cart" class="btn btn-secondary" @click="toggleCart">Apskatīt grozu</Link>
-        <Link href="/checkout" class="btn btn-primary" @click="toggleCart">Uz apmaksu</Link>
-      </div>
+        <div class="cart-actions">
+          <Link href="/cart" class="btn btn-secondary" @click="toggleCart">Apskatīt grozu</Link>
+          <Link href="/checkout" class="btn btn-primary" @click="toggleCart">Uz apmaksu</Link>
+        </div>
 
-      <button
-        class="btn btn-link"
-        @click="router.post('/cart/clear', {}, { preserveScroll: true })">>Iztukšot grozu</button>
+        <button class="btn btn-link" @click="router.post('/cart/clear', {}, { preserveScroll: true })">
+          Iztukšot grozu
+        </button>
       </div>
-  </div>
-</transition>
-
+    </div>
+  </transition>
 </template>
 
 <script setup lang="ts">
@@ -139,15 +144,6 @@ interface User {
   email: string;
 }
 
-interface Product {
-  id: number;
-  name: string;
-  images: {
-    men: string;
-    women?: string;
-  };
-}
-
 interface PageProps extends InertiaPageProps {
   auth: {
     user: User | null;
@@ -155,22 +151,9 @@ interface PageProps extends InertiaPageProps {
   [key: string]: any;
 }
 
-// ✅ Props tagad NAV obligāti (ar defaultiem)
-const props = withDefaults(
-  defineProps<{
-    favorites?: number[];
-    toggleFavorite?: (id: number) => void;
-    products?: Product[];
-  }>(),
-  {
-    favorites: () => [],
-    toggleFavorite: () => () => {},
-    products: () => [],
-  }
-);
-
 const page = usePage<PageProps>();
 const auth = page.props.auth ?? { user: null };
+
 const cart = computed(() => (page.props as any).cart ?? { count: 0, items: [] });
 const cartItemCount = computed(() => cart.value.count ?? 0);
 const cartSubtotal = computed(() =>
@@ -179,12 +162,11 @@ const cartSubtotal = computed(() =>
     0
   )
 );
-const selectedGender = ref<"men" | "women">("men");
+
 const isDropdownOpen = ref(false);
 const activeCategory = ref("");
 const isCartVisible = ref(false);
 const isUserMenuOpen = ref(false);
-const showFavoritesBox = ref(false);
 
 function logout() {
   const form = useForm({});
@@ -221,22 +203,8 @@ function closeAllMenus() {
   isDropdownOpen.value = false;
   isCartVisible.value = false;
   isUserMenuOpen.value = false;
-  showFavoritesBox.value = false;
 }
-
-function toggleFavoritesBox() {
-  showFavoritesBox.value = !showFavoritesBox.value;
-}
-
-const favoriteProducts = computed(() => {
-  const prods = props.products ?? [];
-  const favs = props.favorites ?? [];
-  return prods.filter((product) => favs.includes(product.id));
-});
-
-const favoriteCount = computed(() => (props.favorites?.length ?? 0));
 </script>
-
 
 <style scoped>
 :global(:root) {
@@ -313,70 +281,7 @@ const favoriteCount = computed(() => (props.favorites?.length ?? 0));
   font-size: 12px;
 }
 
-.favorites-container {
-  position: relative;
-  display: inline-block;
-}
-
-.favorites-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  padding: 5px 10px;
-  color: #e74c3c;
-  user-select: none;
-}
-
-.favorites-box {
-  position: absolute;
-  top: 110%;
-  right: 0;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  width: 250px;
-  max-height: 300px;
-  overflow-y: auto;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  padding: 10px;
-  z-index: 100;
-}
-
-.fav-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-  padding: 5px;
-  border-bottom: 1px solid #eee;
-}
-
-.fav-thumb {
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-  margin-right: 10px;
-  border-radius: 4px;
-}
-
-.remove-fav {
-  margin-left: auto;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #e74c3c;
-  font-weight: bold;
-  font-size: 18px;
-  user-select: none;
-}
-
-.empty-msg {
-  color: #888;
-  font-style: italic;
-  text-align: center;
-  padding: 20px 0;
-}
-
+/* AUTH */
 .auth-buttons {
   display: flex;
   gap: 10px;
@@ -412,7 +317,7 @@ const favoriteCount = computed(() => (props.favorites?.length ?? 0));
   font-weight: 600;
   font-size: 16px;
   user-select: none;
-  color: black; /* added to make username text visible */
+  color: black;
 }
 
 .user-dropdown-menu {
@@ -422,7 +327,7 @@ const favoriteCount = computed(() => (props.favorites?.length ?? 0));
   border: 1px solid #ddd;
   border-radius: 6px;
   min-width: 140px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
   z-index: 1000;
 }
 
@@ -445,13 +350,14 @@ const favoriteCount = computed(() => (props.favorites?.length ?? 0));
   font-weight: 600;
 }
 
+/* TOP DROPDOWN MENU */
 .dropdown-menu {
   position: fixed;
   top: 60px;
   left: 0;
   right: 0;
   background: white;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
   padding: 20px;
   z-index: 10000;
 }
@@ -501,18 +407,7 @@ const favoriteCount = computed(() => (props.favorites?.length ?? 0));
   cursor: pointer;
 }
 
-/*.blur-background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  background-color: rgba(0, 0, 0, 0.18);
-  z-index: 999;
-}*/
-
+/* ===== CART ===== */
 .cart-modal {
   background: var(--arva-bg);
   color: var(--arva-ink);
@@ -522,11 +417,13 @@ const favoriteCount = computed(() => (props.favorites?.length ?? 0));
   overflow: hidden;
 }
 
-
 .cart-header {
   padding: 14px 14px 12px;
   border-bottom: 1px solid rgba(7, 37, 54, 0.08);
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .cart-header::after {
@@ -537,39 +434,19 @@ const favoriteCount = computed(() => (props.favorites?.length ?? 0));
   bottom: 0;
   height: 3px;
   background: linear-gradient(90deg, var(--arva-teal), var(--arva-pink), var(--arva-purple));
-  opacity: 0.35; /* “viegls” */
+  opacity: 0.35;
 }
 
 .cart-title {
   color: var(--arva-ink);
   font-weight: 900;
   letter-spacing: 0.2px;
-}
-
-.cart-close {
-  color: var(--arva-ink);
-  border: 1px solid rgba(7, 37, 54, 0.12);
-  background: var(--arva-bg-soft);
-  border-radius: 10px;
-  width: 34px;
-  height: 34px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 120ms ease, background 180ms ease;
-}
-
-.cart-close:hover { 
-  transform: translateY(-1px); 
-}
-
-.cart-close:active { 
-  transform: translateY(0); 
+  margin: 0;
 }
 
 .cart-empty {
   color: #555;
-  margin: 10px 0 0;
+  margin: 10px 14px 14px;
 }
 
 .cart-body {
@@ -578,11 +455,15 @@ const favoriteCount = computed(() => (props.favorites?.length ?? 0));
   gap: 12px;
 }
 
-.cart-items { 
-  padding: 12px 14px; 
+.cart-items {
+  padding: 12px 14px;
 }
 
 .cart-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
   background: var(--arva-bg-soft);
   border: 1px solid rgba(7, 37, 54, 0.08);
   border-radius: 12px;
@@ -600,97 +481,148 @@ const favoriteCount = computed(() => (props.favorites?.length ?? 0));
   min-width: 0;
 }
 
-.cart-item-name { 
-  color: var(--arva-ink); 
+.cart-item-name {
+  color: var(--arva-ink);
+  font-weight: 700;
 }
 
-.cart-item-meta { 
-  color: rgba(7, 37, 54, 0.70); 
+.cart-item-meta {
+  color: rgba(7, 37, 54, 0.7);
+  font-size: 14px;
+}
+
+/* SIMPLE BLACK X */
+.cart-close {
+  all: unset;
+  cursor: pointer;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  border-radius: 8px;
+}
+.cart-close:hover {
+  background: rgba(7, 37, 54, 0.06);
+}
+.cart-close:active {
+  background: rgba(7, 37, 54, 0.1);
 }
 
 .cart-remove {
-  background: #fff;
-  border: 1px solid rgba(222, 115, 136, 0.35);
-  color: var(--arva-pink);
-  border-radius: 10px;
-  transition: transform 120ms ease, background 180ms ease;
+  all: unset;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  border-radius: 8px;
+}
+.cart-remove:hover {
+  background: rgba(7, 37, 54, 0.06);
+}
+.cart-remove:active {
+  background: rgba(7, 37, 54, 0.1);
 }
 
-.cart-remove:hover { 
-  transform: translateY(-1px); background: rgba(222,115,136,0.08); 
+.cart-close:focus-visible,
+.cart-remove:focus-visible {
+  outline: 2px solid rgba(19, 196, 171, 0.65);
+  outline-offset: 2px;
 }
 
-.cart-remove:active { 
-  transform: translateY(0); 
+.cart-summary {
+  padding: 0 14px;
 }
 
-.summary-row span { 
-  color: rgba(7, 37, 54, 0.75); 
+.summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
 }
 
-.summary-row strong { 
-  color: var(--arva-ink); 
+.summary-row span {
+  color: rgba(7, 37, 54, 0.75);
 }
 
-.cart-actions { 
-  padding: 0 14px 12px; 
+.summary-row strong {
+  color: var(--arva-ink);
+}
+
+.cart-actions {
+  padding: 0 14px 12px;
+  display: flex;
+  gap: 10px;
 }
 
 .btn {
   border-radius: 12px;
   font-weight: 900;
   letter-spacing: 0.2px;
+  padding: 10px 12px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-primary {
   background: var(--arva-ink);
-  border-color: var(--arva-ink);
+  border: 1px solid var(--arva-ink);
   color: #fff;
   transition: transform 120ms ease, opacity 180ms ease;
 }
-.btn-primary:hover { 
-  transform: translateY(-1px); 
+.btn-primary:hover {
+  transform: translateY(-1px);
 }
-
-.btn-primary:active { 
-  transform: translateY(0); opacity: 0.95; 
+.btn-primary:active {
+  transform: translateY(0);
+  opacity: 0.95;
 }
 
 .btn-secondary {
   background: #fff;
-  border-color: rgba(19, 196, 171, 0.55);
+  border: 1px solid rgba(19, 196, 171, 0.55);
   color: var(--arva-teal-dark);
   transition: transform 120ms ease, background 180ms ease;
 }
-.btn-secondary:hover { 
-  transform: translateY(-1px); background: rgba(19,196,171,0.08); 
+.btn-secondary:hover {
+  transform: translateY(-1px);
+  background: rgba(19, 196, 171, 0.08);
 }
-
-.btn-secondary:active { 
-  transform: translateY(0); 
+.btn-secondary:active {
+  transform: translateY(0);
 }
 
 .btn-link {
   color: rgba(7, 37, 54, 0.65);
+  background: transparent;
+  border: none;
+  padding: 0 14px 14px;
+  cursor: pointer;
+  text-align: left;
 }
-.btn-link:hover { color: 
-  var(--arva-ink); 
-}
-
-.cart-count {
-  background: var(--arva-pink);
-}
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-.fade-enter-from, .fade-leave-to {
-  opacity: 0;
+.btn-link:hover {
+  color: var(--arva-ink);
 }
 
-.dropdown-fade-enter-active, .dropdown-fade-leave-active {
+/* Animācijas */
+.dropdown-fade-enter-active,
+.dropdown-fade-leave-active {
   transition: opacity 0.2s ease;
 }
-.dropdown-fade-enter-from, .dropdown-fade-leave-to {
+.dropdown-fade-enter-from,
+.dropdown-fade-leave-to {
   opacity: 0;
 }
 
@@ -706,10 +638,12 @@ const favoriteCount = computed(() => (props.favorites?.length ?? 0));
   opacity: 0;
 }
 
-.modal-fade-enter-active, .modal-fade-leave-active {
+.modal-fade-enter-active,
+.modal-fade-leave-active {
   transition: opacity 0.25s ease;
 }
-.modal-fade-enter-from, .modal-fade-leave-to {
+.modal-fade-enter-from,
+.modal-fade-leave-to {
   opacity: 0;
 }
 </style>

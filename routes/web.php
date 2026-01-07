@@ -5,6 +5,8 @@ use Inertia\Inertia;
 use App\Http\Controllers\ProductPageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
+
 
 Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
 Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
@@ -36,9 +38,10 @@ Route::get('/cart', function () {
     return Inertia::render('CartView');
 })->name('cart.view');
 
-Route::get('/checkout', function () {
-    return Inertia::render('CheckoutView');
-})->name('checkout');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+});
 
 
 require __DIR__.'/settings.php';
