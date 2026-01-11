@@ -27,6 +27,7 @@
         <transition name="dropdown-fade">
           <div v-if="isUserMenuOpen" class="user-dropdown-menu">
             <Link href="/profile/settings" class="dropdown-item" @click="closeUserMenu">Profils</Link>
+            <Link href="/profile/favorites" class="dropdown-item">Favorīti</Link>
             <button class="dropdown-item logout-item" @click="logout">Izrakstīties</button>
           </div>
         </transition>

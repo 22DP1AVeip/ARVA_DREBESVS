@@ -12,17 +12,10 @@ class ProfileController extends Controller
     {
         $section = $section ?: 'settings';
 
-        // Placeholder pasūtījumi (vēlāk ņemsim no DB)
-        $orders = [
-            ['id' => 'ARVA-1001', 'date' => '2026-01-03', 'status' => 'Apstrādē', 'total' => 79.98],
-            ['id' => 'ARVA-1000', 'date' => '2025-12-28', 'status' => 'Nosūtīts', 'total' => 39.99],
-        ];
 
         return Inertia::render('Profile/Index', [
             'user' => $request->user(),
             'section' => $section,
-            'orders' => $orders,
-            // favorites pagaidām tukšs; vēlāk te padodam no DB
             'favorites' => [],
         ]);
     }

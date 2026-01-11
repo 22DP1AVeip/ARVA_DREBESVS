@@ -7,6 +7,8 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\FavoriteController;
 
 
 Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
@@ -46,11 +48,21 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile/{section?}', [ProfileController::class, 'show'])
-        ->where('section', 'orders|favorites|settings')
+        ->where('section', 'settings')
         ->name('profile');
 
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::put('/profile/password', [ProfileController::class, 'password'])->name('profile.password');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile/orders', [OrderController::class, 'index'])->name('profile.orders');
+    Route::get('/profile/orders/{order}', [OrderController::class, 'show'])->name('profile.orders.show');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile/favorites', [FavoriteController::class, 'index'])->name('profile.favorites');
+    Route::post('/favorites/toggle/{productId}', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
 });
 
 require __DIR__.'/settings.php';
