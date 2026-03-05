@@ -16,10 +16,19 @@ interface DbProduct {
   image_women: string | null;
 }
 
+interface Variant {
+  id: number;
+  size: string;
+  color: string;
+  price: string | number | null;
+}
+
 const page = usePage<any>();
 
 const product = computed(() => page.props.product as DbProduct);
 const view = computed(() => (page.props.view as Gender) ?? "men");
+
+const variants = computed<Variant[]>(() => page.props.variants ?? []);
 
 // favorites IDs no Inertia shared
 const favoritesIds = computed<number[]>(() => page.props.favoritesIds ?? []);
@@ -34,14 +43,10 @@ function toggleFavorite() {
 
   router.post(`/favorites/toggle/${product.value.id}`, {}, {
     preserveScroll: true,
-    onSuccess: () => {
-      // pārlādē tikai favoritesIds no servera
-      router.reload({ only: ["favoritesIds"] });
-    },
+    onSuccess: () => router.reload({ only: ["favoritesIds"] }),
   });
 }
 
-// tikai viena bilde atkarībā no view
 const selectedImage = computed(() => {
   if (view.value === "women") {
     return product.value.image_women ?? product.value.image_men ?? "";
@@ -49,18 +54,47 @@ const selectedImage = computed(() => {
   return product.value.image_men ?? product.value.image_women ?? "";
 });
 
-// atpakaļ links
-const backHref = computed(() =>
-  view.value === "women" ? "/WomanWear" : "/MenWear"
+const backHref = computed(() => (view.value === "women" ? "/WomanWear" : "/MenWear"));
+
+const selectedColor = ref("");
+const selectedSize = ref("");
+
+const colors = computed(() => Array.from(new Set(variants.value.map(v => v.color))));
+
+const sizes = computed(() => {
+  const filtered = selectedColor.value
+    ? variants.value.filter(v => v.color === selectedColor.value)
+    : variants.value;
+
+  return Array.from(new Set(filtered.map(v => v.size)));
+});
+
+const selectedVariant = computed(() =>
+  variants.value.find(v => v.color === selectedColor.value && v.size === selectedSize.value)
 );
 
+const displayPrice = computed(() => {
+  const p = selectedVariant.value?.price ?? product.value.price;
+  return Number(p).toFixed(2);
+});
+
+const canAdd = computed(() => !!selectedVariant.value);
+
+const adding = ref(false);
 const flashGrey = ref(false);
 
 function addToCart() {
+  if (!selectedVariant.value || adding.value) return;
+
+  adding.value = true;
   flashGrey.value = true;
+
   setTimeout(() => (flashGrey.value = false), 450);
 
-  router.post(`/cart/add/${product.value.id}`, { qty: 1 }, { preserveScroll: true });
+  router.post(`/cart/add/${selectedVariant.value.id}`, { qty: 1, view: view.value }, {
+    preserveScroll: true,
+    onFinish: () => (adding.value = false),
+  });
 }
 </script>
 
@@ -74,26 +108,22 @@ function addToCart() {
       </div>
 
       <div class="grid">
-        <!-- LEFT -->
         <div class="images">
           <div class="main-img">
             <img :src="selectedImage" :alt="product.name" />
           </div>
         </div>
 
-        <!-- RIGHT -->
         <div class="info">
-          
-          <!-- TITLE + HEART -->
           <div class="title-row">
             <h1 class="title">{{ product.name }}</h1>
 
-            <!-- ❤️ FAVORITE BUTTON -->
             <button
               class="heart"
               :class="{ active: isFavorite, bump: heartBump }"
               @click="toggleFavorite"
               aria-label="Favorīts"
+              type="button"
             >
               <svg viewBox="0 0 24 24" class="heart-ico">
                 <path
@@ -103,7 +133,7 @@ function addToCart() {
             </button>
           </div>
 
-          <div class="price">€{{ Number(product.price).toFixed(2) }}</div>
+          <div class="price">€{{ displayPrice }}</div>
 
           <div class="meta">
             <div><strong>Kategorija:</strong> {{ product.category }}</div>
@@ -113,23 +143,51 @@ function addToCart() {
 
           <div class="option">
             <div class="label">Krāsa</div>
-            <div class="placeholder">Drīzumā (variants)</div>
+
+            <div v-if="colors.length" class="chips">
+              <button
+                v-for="c in colors"
+                :key="c"
+                class="chip"
+                :class="{ active: selectedColor === c }"
+                type="button"
+                @click="() => { selectedColor = c; selectedSize = '' }"
+              >
+                {{ c }}
+              </button>
+            </div>
+
+            <div v-else class="hint">Šim produktam nav pievienoti varianti.</div>
           </div>
 
           <div class="option">
             <div class="label">Izmērs</div>
+
             <div class="sizes">
-              <button class="size" disabled>XS</button>
-              <button class="size" disabled>S</button>
-              <button class="size" disabled>M</button>
-              <button class="size" disabled>L</button>
-              <button class="size" disabled>XL</button>
+              <button
+                v-for="s in sizes"
+                :key="s"
+                class="size"
+                :class="{ active: selectedSize === s }"
+                type="button"
+                :disabled="!selectedColor"
+                @click="() => { selectedSize = s }"
+              >
+                {{ s }}
+              </button>
             </div>
-            <div class="hint">Izmēri un noliktava būs pēc variantu sistēmas.</div>
+
+            <div class="hint" v-if="!selectedVariant">Izvēlies krāsu un izmēru.</div>
           </div>
 
-          <button class="add" :class="{ flash: flashGrey }" @click="addToCart">
-            Pievienot grozam
+          <button
+            class="add"
+            :class="{ flash: flashGrey }"
+            type="button"
+            @click.prevent.stop="addToCart"
+            :disabled="!canAdd || adding"
+          >
+            {{ adding ? "Pievieno..." : "Pievienot grozam" }}
           </button>
         </div>
       </div>
@@ -140,7 +198,6 @@ function addToCart() {
 </template>
 
 <style scoped>
-/* ---- tava esošā CSS ---- */
 .wrap { max-width:1200px;margin:0 auto;padding:24px; }
 .breadcrumbs { margin-bottom:16px; }
 .grid { display:grid;grid-template-columns:1.2fr 1fr;gap:28px; }
@@ -154,55 +211,37 @@ function addToCart() {
 .sep{border:none;border-top:1px solid #eee;margin:16px 0;}
 .option{margin-bottom:14px;}
 .label{font-weight:600;margin-bottom:6px;}
-.placeholder{color:#666;font-size:14px;}
+
 .sizes{display:flex;gap:8px;flex-wrap:wrap;}
-.size{padding:10px 12px;border-radius:10px;border:1px solid #ddd;background:#fafafa;}
+.size{padding:10px 12px;border-radius:10px;border:1px solid #ddd;background:#fafafa;cursor:pointer;}
+.size.active{border-color:#111;background:#111;color:#fff;}
+
 .hint{margin-top:8px;font-size:12px;color:#777;}
+
 .add{width:100%;margin-top:12px;padding:14px;border-radius:10px;border:2px solid #111;background:#111;color:#fff;font-weight:800;font-size:16px;cursor:pointer;}
 .add.flash{background:#8a8a8a;border-color:#8a8a8a;}
+.add:disabled{opacity:.6;cursor:not-allowed;}
 
-/* ---- HEART STYLE ---- */
-
-.title-row{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-}
-
-.heart{
-  width:42px;
-  height:42px;
+.chips{display:flex;gap:8px;flex-wrap:wrap;}
+.chip{
+  padding:10px 12px;
   border-radius:999px;
-  border:1px solid rgba(0,0,0,.15);
-  background:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  border:1px solid #ddd;
+  background:#fafafa;
   cursor:pointer;
-  transition:transform .15s ease;
+  font-weight:600;
+}
+.chip.active{
+  border-color:#111;
+  background:#111;
+  color:#fff;
 }
 
-.heart-ico{
-  width:22px;
-  height:22px;
-}
-
-.heart-ico path{
-  fill: transparent;
-  stroke:#000;
-  stroke-width:1.8;
-  transition: fill .2s ease;
-}
-
-/* active = favorīts */
-.heart.active .heart-ico path{
-  fill:#de7388;   /* ARVA pink */
-  stroke:#000;
-}
-
-/* pop animation */
-.heart.bump{
-  transform: scale(1.15);
-}
+/* HEART */
+.title-row{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.heart{width:42px;height:42px;border-radius:999px;border:1px solid rgba(0,0,0,.15);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s ease;}
+.heart-ico{width:22px;height:22px;}
+.heart-ico path{fill:transparent;stroke:#000;stroke-width:1.8;transition:fill .2s ease;}
+.heart.active .heart-ico path{fill:#de7388;stroke:#000;}
+.heart.bump{transform:scale(1.15);}
 </style>

@@ -17,9 +17,9 @@ function labelStatus(s: string) {
 </script>
 
 <template>
-  <main>
+  <main class="profile-page">
     <NavBar />
-    <div style="max-width: 900px; margin: 0 auto; padding: 24px;">
+    <div class="profile-content">
       <h1>Pasūtījumi</h1>
 
       <p v-if="orders.length === 0">Nav pasūtījumu.</p>
@@ -55,3 +55,21 @@ function labelStatus(s: string) {
     <Footer />
   </main>
 </template>
+
+<style scoped>
+.profile-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f7fbfc;
+  color: #072536;
+}
+
+.profile-content {
+  flex: 1;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 28px 48px 56px;
+}
+</style>

@@ -1,170 +1,66 @@
-<template>
-  <div class="checkout-page">
-    <div class="checkout-header">
-      <h1 class="page-title">Apmaksa</h1>
-      <Link href="/cart" class="back-link">← Atpakaļ uz grozu</Link>
-    </div>
-
-    <div v-if="cartCount === 0" class="empty-state">
-      Grozs ir tukšs. <Link href="/cart">Doties uz grozu</Link>
-    </div>
-
-    <div v-else class="grid">
-      <!-- LEFT: FORM -->
-      <div class="card">
-        <h2 class="card-title">Piegādes dati</h2>
-
-        <form @submit.prevent="submit">
-          <div class="field-row">
-            <label>Vārds, uzvārds *</label>
-            <input v-model="form.full_name" type="text" autocomplete="name" />
-            <div v-if="form.errors.full_name" class="err">{{ form.errors.full_name }}</div>
-          </div>
-
-          <div class="two-cols">
-            <div class="field-row">
-              <label>E-pasts *</label>
-              <input v-model="form.email" type="email" autocomplete="email" />
-              <div v-if="form.errors.email" class="err">{{ form.errors.email }}</div>
-            </div>
-
-            <div class="field-row">
-              <label>Telefons</label>
-              <input v-model="form.phone" type="text" autocomplete="tel" />
-              <div v-if="form.errors.phone" class="err">{{ form.errors.phone }}</div>
-            </div>
-          </div>
-
-          <div class="field-row">
-            <label>Adrese *</label>
-            <input v-model="form.address" type="text" autocomplete="street-address" />
-            <div v-if="form.errors.address" class="err">{{ form.errors.address }}</div>
-          </div>
-
-          <div class="two-cols">
-            <div class="field-row">
-              <label>Pilsēta *</label>
-              <input v-model="form.city" type="text" autocomplete="address-level2" />
-              <div v-if="form.errors.city" class="err">{{ form.errors.city }}</div>
-            </div>
-
-            <div class="field-row">
-              <label>Pasta indekss *</label>
-              <input v-model="form.postcode" type="text" autocomplete="postal-code" />
-              <div v-if="form.errors.postcode" class="err">{{ form.errors.postcode }}</div>
-            </div>
-          </div>
-
-          <div class="field-row">
-            <label>Valsts *</label>
-            <input v-model="form.country" type="text" autocomplete="country-name" />
-            <div v-if="form.errors.country" class="err">{{ form.errors.country }}</div>
-          </div>
-
-          <div class="divider"></div>
-
-          <h2 class="card-title">Maksājums</h2>
-
-          <div class="radio-row">
-            <label class="radio">
-              <input type="radio" value="card" v-model="form.payment_method" />
-              Karte (demo)
-            </label>
-
-            <label class="radio">
-              <input type="radio" value="cod" v-model="form.payment_method" />
-              Apmaksa saņemot
-            </label>
-          </div>
-
-          <div v-if="form.errors.payment_method" class="err">{{ form.errors.payment_method }}</div>
-
-          <button class="btn btn-primary full" :disabled="form.processing">
-            {{ form.processing ? "Nosūta..." : "Apstiprināt pasūtījumu" }}
-          </button>
-
-          <p class="hint">
-            Šī ir demo apmaksas lapa. Maksājumi vēl nav pieslēgti.
-          </p>
-        </form>
-      </div>
-
-      <!-- RIGHT: SUMMARY -->
-      <div class="card summary-card">
-        <h2 class="card-title">Pasūtījuma kopsavilkums</h2>
-
-        <div class="summary-items">
-          <div v-for="item in cartItems" :key="item.id" class="summary-item">
-            <img class="thumb" :src="item.image_men || item.image_women" alt="" />
-
-            <div class="info">
-              <div class="name">{{ item.name }}</div>
-              <div class="meta">€{{ money(item.price) }} × {{ item.qty }}</div>
-            </div>
-
-            <div class="line-total">
-              €{{ money(Number(item.price) * Number(item.qty)) }}
-            </div>
-          </div>
-        </div>
-
-        <div class="totals">
-          <div class="row">
-            <span>Starpsumma</span>
-            <strong>€{{ money(subtotal) }}</strong>
-          </div>
-          <div class="row subtle">
-            <span>Piegāde</span>
-            <span>Aprēķināsim vēlāk</span>
-          </div>
-
-          <div class="row total">
-            <span>Kopā</span>
-            <strong>€{{ money(subtotal) }}</strong>
-          </div>
-        </div>
-
-        <div class="summary-actions">
-          <Link href="/cart" class="btn btn-secondary">Rediģēt grozu</Link>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { computed } from "vue";
-import { Link, usePage, useForm } from "@inertiajs/vue3";
-
-type CartItem = {
-  id: number | string;
-  name: string;
-  price: number | string;
-  qty: number | string;
-  image_men?: string;
-  image_women?: string;
-};
-
-type Cart = {
-  count?: number;
-  items?: CartItem[];
-};
+import NavBar from "../components/NavBar.vue";
+import Footer from "../components/NavFooter.vue";
+import { computed, ref } from "vue";
+import { useForm, usePage, Link } from "@inertiajs/vue3";
 
 const page = usePage<any>();
-
-// Cart var nākt no props (no controller) vai shared props (kā tev navbarā)
-const cart = computed<Cart>(() => (page.props.cart ?? { count: 0, items: [] }) as Cart);
-
-const cartItems = computed(() => cart.value.items ?? []);
-const cartCount = computed(() => Number(cart.value.count ?? 0));
+const cart = computed(() => page.props.cart ?? { count: 0, items: [] });
 
 const subtotal = computed(() =>
-  cartItems.value.reduce((sum, it) => sum + Number(it.price) * Number(it.qty), 0)
+  (cart.value.items ?? []).reduce(
+    (s: number, i: any) => s + Number(i.price) * Number(i.qty),
+    0
+  )
 );
 
+// --- Fake card fields (UI only)
+const cardNumber = ref("");
+const cardExpiry = ref("");
+const cardCvv = ref("");
+
+// --- Format card number: 4242 4242 4242 4242
+function formatCardNumber(e: Event) {
+  const input = e.target as HTMLInputElement;
+  let value = input.value;
+
+  value = value.replace(/\D/g, "");   // only digits
+  value = value.slice(0, 16);        // max 16 digits
+  value = value.replace(/(.{4})/g, "$1 ").trim(); // spaces
+
+  cardNumber.value = value;
+}
+
+// --- Format expiry: MM/YY
+function formatExpiry(e: Event) {
+  const input = e.target as HTMLInputElement;
+  let value = input.value;
+
+  value = value.replace(/\D/g, ""); // only digits
+  value = value.slice(0, 4);       // max 4 digits
+
+  if (value.length >= 3) {
+    value = value.slice(0, 2) + "/" + value.slice(2);
+  }
+
+  cardExpiry.value = value;
+}
+
+// --- Format CVV: 123
+function formatCvv(e: Event) {
+  const input = e.target as HTMLInputElement;
+  let value = input.value;
+
+  value = value.replace(/\D/g, ""); // only digits
+  value = value.slice(0, 3);       // max 3 digits
+
+  cardCvv.value = value;
+}
+
+// --- Checkout form
 const form = useForm({
   full_name: "",
-  email: (page.props.auth?.user?.email ?? "") as string,
+  email: "",
   phone: "",
   address: "",
   city: "",
@@ -173,327 +69,199 @@ const form = useForm({
   payment_method: "card",
 });
 
-function money(v: number | string) {
-  const n = Number(v);
-  return Number.isFinite(n) ? n.toFixed(2) : "0.00";
-}
-
 function submit() {
-  form.post("/checkout", {
-    preserveScroll: true,
-  });
+  if ((cart.value.count ?? 0) <= 0) return;
+
+  if (form.payment_method === "card") {
+    if (!cardNumber.value || !cardExpiry.value || !cardCvv.value) {
+      alert("Lūdzu aizpildi kartes datus (testa režīms).");
+      return;
+    }
+  }
+
+  form.post("/checkout");
 }
 </script>
 
+<template>
+  <main>
+    <NavBar />
+
+    <div class="wrap">
+      <div class="head">
+        <h1 class="title">Apmaksa</h1>
+        <Link href="/cart" class="back">← Atpakaļ uz grozu</Link>
+      </div>
+
+      <p v-if="cart.count === 0" class="empty">
+        Grozs ir tukšs.
+        <Link href="/" class="link">Atgriezties uz veikalu</Link>
+      </p>
+
+      <div v-else class="grid">
+        <!-- LEFT -->
+        <div class="card">
+          <h2 class="card-title">Piegādes dati</h2>
+
+          <div class="field">
+            <label>Vārds Uzvārds</label>
+            <input v-model="form.full_name" placeholder="Jānis Bērziņš" />
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>E-pasts</label>
+              <input v-model="form.email" placeholder="janis@email.com" />
+            </div>
+            <div class="field">
+              <label>Telefons</label>
+              <input v-model="form.phone" placeholder="+371 20000000" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Adrese</label>
+            <input v-model="form.address" placeholder="Brīvības iela 1" />
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>Pilsēta</label>
+              <input v-model="form.city" placeholder="Rīga" />
+            </div>
+            <div class="field">
+              <label>Pasta indekss</label>
+              <input v-model="form.postcode" placeholder="LV-1001" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Valsts</label>
+            <input v-model="form.country" />
+          </div>
+
+          <hr class="sep" />
+
+          <h2 class="card-title">Maksājums</h2>
+
+          <div class="field">
+            <label>Maksājuma metode</label>
+            <select v-model="form.payment_method">
+              <option value="card">Bankas karte</option>
+              <option value="cod">Apmaksa pie saņemšanas</option>
+            </select>
+          </div>
+
+          <!-- Card fields -->
+          <div v-if="form.payment_method === 'card'" class="card-box">
+            <div class="field">
+              <label>Kartes numurs</label>
+              <input
+                type="text"
+                inputmode="numeric"
+                pattern="[0-9 ]*"
+                :value="cardNumber"
+                @input="formatCardNumber"
+                placeholder="4242 4242 4242 4242"
+              />
+            </div>
+
+            <div class="row">
+              <div class="field">
+                <label>Derīguma termiņš</label>
+                <input
+                  type="text"
+                  inputmode="numeric"
+                  pattern="[0-9/]*"
+                  :value="cardExpiry"
+                  @input="formatExpiry"
+                  placeholder="MM/YY"
+                />
+              </div>
+
+              <div class="field">
+                <label>CVV</label>
+                <input
+                  type="text"
+                  inputmode="numeric"
+                  pattern="[0-9]*"
+                  :value="cardCvv"
+                  @input="formatCvv"
+                  placeholder="123"
+                />
+              </div>
+            </div>
+
+            <p class="test-note">
+              Testa režīms — maksājums netiek veikts. Kartes dati netiek saglabāti.
+            </p>
+          </div>
+
+          <button class="btn" @click="submit">
+            Apmaksāt (Testa režīms)
+          </button>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="card summary">
+          <h2 class="card-title">Kopsavilkums</h2>
+
+          <div v-for="it in cart.items" :key="it.id" class="item">
+            <div>
+              <strong>{{ it.name }}</strong>
+              <div class="muted">€{{ it.price }} × {{ it.qty }}</div>
+            </div>
+            <strong>€{{ (it.price * it.qty).toFixed(2) }}</strong>
+          </div>
+
+          <hr class="sep" />
+
+          <div class="sum">
+            <span>Kopā:</span>
+            <strong>€{{ subtotal.toFixed(2) }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <Footer />
+  </main>
+</template>
+
 <style scoped>
-:global(:root) {
-  --arva-ink: #072536;
-  --arva-teal: #13c4ab;
-  --arva-teal-dark: #06616d;
-  --arva-pink: #de7388;
-  --arva-purple: #97276b;
-  --arva-bg: #ffffff;
-  --arva-bg-soft: #f7fbfc;
-  --arva-border: rgba(7, 37, 54, 0.12);
-  --arva-shadow: 0 14px 40px rgba(7, 37, 54, 0.18);
-}
+.wrap { max-width:1100px;margin:auto;padding:24px; }
+.grid { display:grid;grid-template-columns:1.1fr 0.9fr;gap:16px; }
+@media(max-width:900px){.grid{grid-template-columns:1fr;}}
 
-.checkout-page {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 22px 16px 40px;
-  color: var(--arva-ink);
-}
+.card { background:#fff;border:1px solid #eee;border-radius:12px;padding:16px; }
+.card-title { font-weight:900;margin-bottom:10px; }
 
-.checkout-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 14px;
-}
+.field { margin-bottom:10px; display:grid; gap:4px; }
+input, select { padding:10px;border:1px solid #ddd;border-radius:8px; }
 
-.page-title {
-  margin: 0;
-  font-size: 32px;
-  font-weight: 900;
-  letter-spacing: 0.2px;
-  color: var(--arva-ink);
-}
-
-.back-link {
-  text-decoration: none;
-  color: rgba(7, 37, 54, 0.7);
-  font-weight: 700;
-}
-.back-link:hover {
-  color: var(--arva-ink);
-}
-
-.empty-state {
-  background: var(--arva-bg-soft);
-  border: 1px solid var(--arva-border);
-  border-radius: 14px;
-  padding: 18px;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  gap: 16px;
-}
-
-@media (max-width: 920px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.card {
-  background: var(--arva-bg);
-  border: 1px solid var(--arva-border);
-  border-radius: 14px;
-  box-shadow: var(--arva-shadow);
-  padding: 16px;
-}
-
-.card-title {
-  margin: 0 0 12px;
-  font-size: 18px;
-  font-weight: 900;
-  color: var(--arva-ink);
-}
-
-.field-row {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 12px;
-}
-
-label {
-  font-weight: 800;
-  font-size: 13px;
-  color: rgba(7, 37, 54, 0.8);
-}
-
-input[type="text"],
-input[type="email"] {
-  border: 1px solid rgba(7, 37, 54, 0.16);
-  border-radius: 12px;
-  padding: 10px 12px;
-  outline: none;
-  background: var(--arva-bg);
-  color: var(--arva-ink);
-}
-
-input[type="text"]:focus,
-input[type="email"]:focus {
-  border-color: rgba(19, 196, 171, 0.75);
-  box-shadow: 0 0 0 3px rgba(19, 196, 171, 0.18);
-}
-
-.two-cols {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-@media (max-width: 620px) {
-  .two-cols {
-    grid-template-columns: 1fr;
-  }
-}
-
-.divider {
-  height: 1px;
-  background: rgba(7, 37, 54, 0.08);
-  margin: 14px 0;
-  position: relative;
-}
-
-.divider::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: -1px;
-  height: 3px;
-  background: linear-gradient(90deg, var(--arva-teal), var(--arva-pink), var(--arva-purple));
-  opacity: 0.35;
-}
-
-.radio-row {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin: 6px 0 14px;
-}
-
-.radio {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(7, 37, 54, 0.12);
-  background: var(--arva-bg-soft);
-  font-weight: 800;
-  color: rgba(7, 37, 54, 0.85);
-}
-
-.radio input {
-  accent-color: var(--arva-teal);
-}
-
-.err {
-  color: #b21f2d;
-  font-weight: 700;
-  font-size: 12px;
-}
+.row { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
+@media(max-width:600px){.row{grid-template-columns:1fr;}}
 
 .btn {
-  border-radius: 12px;
-  font-weight: 900;
-  letter-spacing: 0.2px;
-  padding: 11px 12px;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid transparent;
-  cursor: pointer;
-  user-select: none;
+  margin-top:10px;
+  background:#111;
+  color:#fff;
+  padding:12px;
+  width:100%;
+  border-radius:10px;
+  font-weight:900;
 }
 
-.btn-primary {
-  background: var(--arva-ink);
-  border-color: var(--arva-ink);
-  color: #fff;
-  transition: transform 120ms ease, opacity 180ms ease;
-}
-.btn-primary:hover {
-  transform: translateY(-1px);
-}
-.btn-primary:active {
-  transform: translateY(0);
-  opacity: 0.95;
-}
-.btn-primary:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-  transform: none;
-}
+.card-box { background:#f7f7f7;padding:10px;border-radius:10px;margin-bottom:10px; }
+.test-note { font-size:12px;color:#666;font-weight:700; }
 
-.btn-secondary {
-  background: #fff;
-  border-color: rgba(19, 196, 171, 0.55);
-  color: var(--arva-teal-dark);
-  transition: transform 120ms ease, background 180ms ease;
-}
-.btn-secondary:hover {
-  transform: translateY(-1px);
-  background: rgba(19, 196, 171, 0.08);
-}
-.btn-secondary:active {
-  transform: translateY(0);
-}
+.summary .item { display:flex;justify-content:space-between;margin-bottom:8px; }
+.sep { border:none;border-top:1px solid #eee;margin:10px 0; }
+.muted { font-size:13px;color:#666; }
+.sum { display:flex;justify-content:space-between;font-size:16px; }
 
-.full {
-  width: 100%;
-  margin-top: 8px;
-}
-
-.hint {
-  margin: 10px 0 0;
-  color: rgba(7, 37, 54, 0.65);
-  font-size: 13px;
-}
-
-/* Summary */
-.summary-card {
-  position: sticky;
-  top: 16px;
-  align-self: start;
-}
-
-@media (max-width: 920px) {
-  .summary-card {
-    position: static;
-  }
-}
-
-.summary-items {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.summary-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: var(--arva-bg-soft);
-  border: 1px solid rgba(7, 37, 54, 0.08);
-  border-radius: 12px;
-  padding: 10px;
-}
-
-.thumb {
-  width: 54px;
-  height: 54px;
-  border-radius: 10px;
-  object-fit: cover;
-}
-
-.info {
-  flex: 1;
-  min-width: 0;
-}
-
-.name {
-  font-weight: 900;
-  color: var(--arva-ink);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.meta {
-  color: rgba(7, 37, 54, 0.7);
-  font-size: 13px;
-}
-
-.line-total {
-  font-weight: 900;
-  color: var(--arva-ink);
-}
-
-.totals {
-  border-top: 1px solid rgba(7, 37, 54, 0.08);
-  padding-top: 12px;
-}
-
-.row {
-  display: flex;
-  justify-content: space-between;
-  padding: 6px 0;
-}
-
-.subtle {
-  color: rgba(7, 37, 54, 0.65);
-  font-weight: 700;
-}
-
-.total {
-  border-top: 1px solid rgba(7, 37, 54, 0.08);
-  margin-top: 8px;
-  padding-top: 10px;
-  font-size: 16px;
-}
-
-.summary-actions {
-  margin-top: 12px;
-}
+.head { display:flex;justify-content:space-between;align-items:center;margin-bottom:10px; }
+.back { text-decoration:none;color:#555;font-weight:700; }
+.empty { font-weight:700;color:#666; }
+.link { text-decoration:underline;color:#111; }
 </style>

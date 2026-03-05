@@ -16,4 +16,9 @@ class Product extends Model
         'image_men',
         'image_women',
     ];
+
+    public function variants(){
+        return $this->hasMany(ProductVariant::class);
+    }
+
 }

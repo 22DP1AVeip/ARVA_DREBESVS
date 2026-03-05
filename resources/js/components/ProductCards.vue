@@ -36,44 +36,16 @@
   </div>
 
   <div class="product-container">
-  <Link
+    <Link
       class="product-card"
       v-for="product in products"
       :key="product.id"
       :href="`/product/${product.id}?view=${category}`"
-      >
+    >
       <img :src="product.images[selectedGender]" :alt="product.name" class="product-img" />
       <div class="product-info">
         <h3 class="product-name">{{ product.name }}</h3>
         <p class="product-price">€{{ product.price.toFixed(2) }}</p>
-
-        <div
-          class="favorite-icon"
-          @click="handleFavoriteClick(product.id)"
-          :style="{
-            opacity: isLoggedIn ? 1 : 0.4,
-            cursor: isLoggedIn ? 'pointer' : 'not-allowed'
-          }"
-        >
-          <svg
-            class="heart-icon"
-            :class="{ favorited: isFavorited(product.id) }"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            width="24"
-            height="24"
-          >
-            <path
-              d="M20.8 4.6c-1.6-1.6-4.3-1.6-6 0L12 7.4l-2.8-2.8c-1.6-1.6-4.3-1.6-6 0-1.6 1.6-1.6 4.3 0 6L12 21.1l8.8-8.5c1.7-1.7 1.7-4.4 0-6z"
-              :fill="isFavorited(product.id) ? 'red' : 'none'"
-            />
-          </svg>
-        </div>
       </div>
     </Link>
   </div>
@@ -130,18 +102,8 @@ watch(
 // Dzimumu nosaka lapa (MenView/WomanView). Te nav select, lai nesajauc ar backend filtriem.
 const selectedGender = ref<Gender>(props.category);
 
-// Atstājam, bet šobrīd nelietojam (favorites filtrs būs, kad būs DB)
+// Atstājām, bet šobrīd nelietojam (favorites filtrs būs, kad būs DB)
 const showOnlyFavorites = ref(false);
-
-const handleFavoriteClick = (id: number) => {
-  if (!props.isLoggedIn) {
-    alert("Lūdzu, piesakieties, lai pievienotu favorītus.");
-    return;
-  }
-  props.toggleFavorite(id);
-};
-
-const isFavorited = (id: number) => props.favorites.includes(id);
 
 let searchTimer: any = null;
 
@@ -170,7 +132,6 @@ watch([selectedCategory, minPrice, maxPrice], () => {
 </script>
 
 <style scoped>
-
 .product-card {
   text-decoration: none;
   color: inherit;
@@ -182,27 +143,28 @@ watch([selectedCategory, minPrice, maxPrice], () => {
   justify-content: center;
   gap: 15px;
   padding: 20px;
-  background-color: white;
+  background-color: #ffffff;
   margin: 20px auto;
   max-width: 1200px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(7, 37, 54, 0.08);
+  box-shadow: 0 6px 18px rgba(7, 37, 54, 0.06);
 }
 
 .filters select,
 .filters input,
 .filters label {
-  color: black;
+  color: #072536;
 }
 
 .filters input::placeholder {
-  color: #555;
+  color: rgba(7, 37, 54, 0.45);
 }
 
 .filter-select {
   padding: 8px 12px;
   border-radius: 6px;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(7, 37, 54, 0.12);
   background-color: white;
   font-size: 14px;
   min-width: 150px;
@@ -211,7 +173,7 @@ watch([selectedCategory, minPrice, maxPrice], () => {
 .search-input {
   padding: 8px 12px;
   border-radius: 6px;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(7, 37, 54, 0.12);
   font-size: 14px;
   min-width: 200px;
 }
@@ -225,7 +187,7 @@ watch([selectedCategory, minPrice, maxPrice], () => {
 .price-input {
   padding: 8px;
   border-radius: 6px;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(7, 37, 54, 0.12);
   width: 70px;
   margin-left: 5px;
 }
@@ -240,109 +202,68 @@ watch([selectedCategory, minPrice, maxPrice], () => {
 .product-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 30px;
+  gap: 26px;
   justify-content: center;
   padding: 20px;
   margin: 0 auto;
-  max-width: 1400px;
+  max-width: 1500px;
 }
 
 .product-card {
   display: flex;
   flex-direction: column;
-  width: calc(20% - 30px);
-  min-width: 250px;
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: calc(20% - 26px);
+  min-width: 240px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid rgba(7, 37, 54, 0.1);
+  box-shadow: 0 8px 20px rgba(7, 37, 54, 0.08);
   overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .product-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(7, 37, 54, 0.12);
 }
 
 .product-img {
   width: 100%;
   height: 300px;
   object-fit: cover;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid rgba(7, 37, 54, 0.08);
+  background: #f7fbfc;
 }
 
 .product-info {
-  padding: 15px;
-  position: relative;
+  padding: 14px 16px 16px;
 }
 
 .product-name {
   font-size: 16px;
   font-weight: 600;
-  color: #333;
-  margin-bottom: 8px;
+  color: #072536;
+  margin-bottom: 6px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .product-price {
-  font-size: 18px;
-  color: #e74c3c;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.favorite-icon {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  cursor: pointer;
-  font-size: 24px;
-  user-select: none;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  transition: transform 0.3s ease;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-}
-
-.heart-icon {
-  stroke: red;
-  transition: fill 0.3s ease, transform 0.3s ease;
-  fill: none;
-  stroke-width: 2;
-}
-
-.heart-icon.favorited {
-  fill: red;
-  animation: pulse 1s infinite;
-  transform-origin: center;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 0 red);
-  }
-  50% {
-    transform: scale(1.2);
-    filter: drop-shadow(0 0 6px red);
-  }
+  font-size: 16px;
+  color: #072536;
+  font-weight: 700;
 }
 
 @media (max-width: 1200px) {
   .product-card {
-    width: calc(25% - 30px);
+    width: calc(25% - 26px);
   }
 }
 
 @media (max-width: 992px) {
   .product-card {
-    width: calc(33.33% - 30px);
+    width: calc(33.33% - 26px);
   }
 }
 
@@ -353,13 +274,13 @@ watch([selectedCategory, minPrice, maxPrice], () => {
   }
 
   .product-card {
-    width: calc(50% - 30px);
+    width: calc(50% - 26px);
   }
 }
 
 @media (max-width: 480px) {
   .product-card {
-    width: calc(100% - 30px);
+    width: calc(100% - 26px);
   }
 }
 </style>

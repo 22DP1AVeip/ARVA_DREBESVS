@@ -10,12 +10,23 @@ class ProductController extends Controller
 {
     public function show(Request $request, $id)
     {
-        $product = Product::query()->findOrFail($id);
         $view = $request->query('view', 'men');
+
+        $product = Product::with(['variants' => function ($q) {
+            $q->where('is_active', true)
+              ->orderBy('color')
+              ->orderBy('size');
+        }])->findOrFail($id);
 
         return Inertia::render('ProductShow', [
             'product' => $product,
             'view' => $view,
+            'variants' => $product->variants->map(fn ($v) => [
+                'id' => $v->id,
+                'size' => $v->size,
+                'color' => $v->color,
+                'price' => $v->price, // nullable
+            ])->values(),
         ]);
     }
 }

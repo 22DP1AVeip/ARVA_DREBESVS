@@ -95,7 +95,7 @@
       <div v-else class="cart-body">
         <div class="cart-items">
           <div v-for="item in cart.items" :key="item.id" class="cart-item">
-            <img class="cart-thumb" :src="item.image_men || item.image_women" alt="" />
+            <img class="cart-thumb" :src="item.image || item.image_men || item.image_women" alt="" />
 
             <div class="cart-item-info">
               <div class="cart-item-name">{{ item.name }}</div>

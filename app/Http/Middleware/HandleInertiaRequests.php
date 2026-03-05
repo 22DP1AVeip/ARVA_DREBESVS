@@ -7,26 +7,18 @@ use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\Favorite;
 
 class HandleInertiaRequests extends Middleware
 {
-    /**
-     * The root template that's loaded on the first page visit.
-     */
     protected $rootView = 'app';
 
-    /**
-     * Determines the current asset version.
-     */
     public function version(Request $request): ?string
     {
         return parent::version($request);
     }
 
-    /**
-     * Define the props that are shared by default.
-     */
     public function share(Request $request): array
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
@@ -57,25 +49,37 @@ class HandleInertiaRequests extends Middleware
             // CART
             'cart' => function () {
                 $cart = session()->get('cart', []);
+                $views = session()->get('cart_views', []);
                 $count = array_sum($cart);
 
-                $ids = array_keys($cart);
-                $products = $ids
-                    ? Product::query()->whereIn('id', $ids)->get()->keyBy('id')
+                $variantIds = array_keys($cart);
+                $variants = $variantIds
+                    ? ProductVariant::with('product')
+                        ->whereIn('id', $variantIds)
+                        ->get()
+                        ->keyBy('id')
                     : collect();
 
                 $items = [];
-                foreach ($cart as $id => $qty) {
-                    $p = $products->get((int) $id);
-                    if (!$p) continue;
+                foreach ($variantIds as $variantId) {
+                    $variant = $variants->get((int) $variantId);
+                    if (!$variant || !$variant->product) {
+                        continue;
+                    }
+
+                    $product = $variant->product;
+                    $view = $views[$variantId] ?? $views[(int)$variantId] ?? 'men';
 
                     $items[] = [
-                        'id' => $p->id,
-                        'name' => $p->name,
-                        'price' => (float) $p->price,
-                        'image_men' => $p->image_men,
-                        'image_women' => $p->image_women,
-                        'qty' => (int) $qty,
+                        'id'          => (int) $variant->id,
+                        'name'        => (string) $product->name,
+                        'price'       => (float) ($variant->price ?? $product->price),
+                        'image_men'   => $product->image_men,
+                        'image_women' => $product->image_women,
+                        'image'       => $view === 'women'
+                                            ? ($product->image_women ?? $product->image_men)
+                                            : ($product->image_men ?? $product->image_women),
+                        'qty'         => (int) ($cart[$variantId] ?? 0),
                     ];
                 }
 

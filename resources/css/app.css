@@ -93,6 +93,26 @@ body {
   color: #072536;
 }
 
+.auth-page {
+  color: #000;
+}
+
+.auth-page a {
+  color: #000;
+}
+
+.auth-page input,
+.auth-page select,
+.auth-page textarea,
+.auth-page label {
+  color: #000;
+}
+
+.auth-page input::placeholder,
+.auth-page textarea::placeholder {
+  color: #555;
+}
+
 :root {
   --background: hsl(0 0% 100%);
   --foreground: hsl(0 0% 3.9%);

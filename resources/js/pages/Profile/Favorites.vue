@@ -14,10 +14,10 @@ function remove(productId: number) {
 </script>
 
 <template>
-  <main>
+  <main class="profile-page">
     <NavBar />
 
-    <div class="wrap">
+    <div class="wrap profile-content">
       <div class="head">
         <h1 class="title">Favorīti</h1>
         <Link href="/profile/settings" class="back">← Atpakaļ uz profilu</Link>
@@ -51,6 +51,18 @@ function remove(productId: number) {
 </template>
 
 <style scoped>
+.profile-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f7fbfc;
+  color: #072536;
+}
+
+.profile-content {
+  flex: 1;
+}
+
 :global(:root) {
   --arva-ink: #072536;
   --arva-teal: #13c4ab;
@@ -62,7 +74,7 @@ function remove(productId: number) {
   --arva-shadow: 0 14px 40px rgba(7, 37, 54, 0.18);
 }
 
-.wrap { max-width: 1100px; margin: 0 auto; padding: 22px 16px 40px; color: var(--arva-ink); }
+.wrap { width: 100%; max-width: none; margin: 0; padding: 28px 48px 56px; color: var(--arva-ink); }
 .head { display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-bottom: 14px; }
 .title { margin:0; font-size:32px; font-weight:900; }
 .back { color: rgba(7,37,54,.7); text-decoration:none; font-weight:800; }
