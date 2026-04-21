@@ -27,7 +27,8 @@
         <transition name="dropdown-fade">
           <div v-if="isUserMenuOpen" class="user-dropdown-menu">
             <Link href="/profile/settings" class="dropdown-item" @click="closeUserMenu">Profils</Link>
-            <Link href="/profile/favorites" class="dropdown-item">Favorīti</Link>
+            <Link href="/profile/favorites" class="dropdown-item" @click="closeUserMenu">Favorīti</Link>
+            <Link href="/design" class="dropdown-item design-item" @click="closeUserMenu">🎨 Dizaina veidotājs</Link>
             <button class="dropdown-item logout-item" @click="logout">Izrakstīties</button>
           </div>
         </transition>
@@ -39,25 +40,16 @@
     <div v-if="isDropdownOpen" class="dropdown-menu">
       <button class="close-button" @click="toggleDropdown">✖</button>
       <div class="categories">
-        <a
-          href="#"
-          class="category-link"
-          @click.prevent="toggleCategory('woman')"
-          :class="{ active: activeCategory === 'woman' }"
-        >SIEVIEŠU</a>
-        <a
-          href="#"
-          class="category-link"
-          @click.prevent="toggleCategory('men')"
-          :class="{ active: activeCategory === 'men' }"
-        >VĪRIEŠU</a>
-        <a
-          href="#"
-          class="category-link"
-          @click.prevent="toggleCategory('accessories')"
-          :class="{ active: activeCategory === 'accessories' }"
-        >AKSESUĀRI</a>
-      </div>
+  <a href="#" class="category-link" @click.prevent="toggleCategory('woman')" :class="{ active: activeCategory === 'woman' }">
+    <span>SIEVIEŠU</span>
+  </a>
+  <a href="#" class="category-link" @click.prevent="toggleCategory('men')" :class="{ active: activeCategory === 'men' }">
+    <span>VĪRIEŠU</span>
+  </a>
+  <a href="#" class="category-link" @click.prevent="toggleCategory('accessories')" :class="{ active: activeCategory === 'accessories' }">
+    <span>AKSESUĀRI</span>
+  </a>
+</div>
 
       <div class="menu-links">
         <h3>IZCĒLTI PRODUKTI</h3>
@@ -283,7 +275,6 @@ function closeAllMenus() {
   font-size: 12px;
 }
 
-/* AUTH */
 .auth-buttons {
   display: flex;
   gap: 10px;
@@ -328,7 +319,7 @@ function closeAllMenus() {
   background: white;
   border: 1px solid #ddd;
   border-radius: 6px;
-  min-width: 140px;
+  min-width: 180px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
   z-index: 1000;
 }
@@ -346,13 +337,29 @@ function closeAllMenus() {
   background-color: #f0f0f0;
 }
 
+.design-item {
+  color: #6c63ff;
+  font-weight: 600;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+}
+
+.design-item:hover {
+  background-color: #f0eeff;
+}
+
 .logout-item {
   border-top: 1px solid #ddd;
   color: #e74c3c;
   font-weight: 600;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
 }
 
-/* TOP DROPDOWN MENU */
 .dropdown-menu {
   position: fixed;
   top: 60px;
@@ -409,7 +416,6 @@ function closeAllMenus() {
   cursor: pointer;
 }
 
-/* ===== CART ===== */
 .cart-modal {
   position: fixed;
   top: 78px;
@@ -517,12 +523,8 @@ function closeAllMenus() {
   line-height: 1;
   border-radius: 999px;
 }
-.cart-close:hover {
-  background: rgba(7, 37, 54, 0.08);
-}
-.cart-close:active {
-  background: rgba(7, 37, 54, 0.12);
-}
+.cart-close:hover { background: rgba(7, 37, 54, 0.08); }
+.cart-close:active { background: rgba(7, 37, 54, 0.12); }
 
 .cart-remove {
   all: unset;
@@ -538,12 +540,8 @@ function closeAllMenus() {
   line-height: 1;
   border-radius: 999px;
 }
-.cart-remove:hover {
-  background: rgba(7, 37, 54, 0.08);
-}
-.cart-remove:active {
-  background: rgba(7, 37, 54, 0.12);
-}
+.cart-remove:hover { background: rgba(7, 37, 54, 0.08); }
+.cart-remove:active { background: rgba(7, 37, 54, 0.12); }
 
 .cart-close:focus-visible,
 .cart-remove:focus-visible {
@@ -562,13 +560,8 @@ function closeAllMenus() {
   padding: 8px 0;
 }
 
-.summary-row span {
-  color: rgba(7, 37, 54, 0.75);
-}
-
-.summary-row strong {
-  color: var(--arva-ink);
-}
+.summary-row span { color: rgba(7, 37, 54, 0.75); }
+.summary-row strong { color: var(--arva-ink); }
 
 .cart-actions {
   padding: 0 16px 12px;
@@ -593,13 +586,8 @@ function closeAllMenus() {
   color: #fff;
   transition: transform 120ms ease, opacity 180ms ease;
 }
-.btn-primary:hover {
-  transform: translateY(-1px);
-}
-.btn-primary:active {
-  transform: translateY(0);
-  opacity: 0.95;
-}
+.btn-primary:hover { transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(0); opacity: 0.95; }
 
 .btn-secondary {
   background: #fff;
@@ -607,13 +595,8 @@ function closeAllMenus() {
   color: var(--arva-teal-dark);
   transition: transform 120ms ease, background 180ms ease;
 }
-.btn-secondary:hover {
-  transform: translateY(-1px);
-  background: rgba(19, 196, 171, 0.08);
-}
-.btn-secondary:active {
-  transform: translateY(0);
-}
+.btn-secondary:hover { transform: translateY(-1px); background: rgba(19, 196, 171, 0.08); }
+.btn-secondary:active { transform: translateY(0); }
 
 .btn-link {
   color: rgba(7, 37, 54, 0.65);
@@ -623,38 +606,27 @@ function closeAllMenus() {
   cursor: pointer;
   text-align: left;
 }
-.btn-link:hover {
-  color: var(--arva-ink);
-}
+.btn-link:hover { color: var(--arva-ink); }
 
-/* Animācijas */
 .dropdown-fade-enter-active,
-.dropdown-fade-leave-active {
-  transition: opacity 0.2s ease;
-}
+.dropdown-fade-leave-active { transition: opacity 0.2s ease; }
 .dropdown-fade-enter-from,
-.dropdown-fade-leave-to {
-  opacity: 0;
-}
+.dropdown-fade-leave-to { opacity: 0; }
 
-.dropdown-slide-enter-active {
-  transition: transform 0.3s ease;
-}
-.dropdown-slide-enter-from {
-  transform: translateY(-15px);
-  opacity: 0;
-}
-.dropdown-slide-leave-to {
-  transform: translateY(-15px);
-  opacity: 0;
-}
+.dropdown-slide-enter-active { transition: transform 0.3s ease; }
+.dropdown-slide-enter-from { transform: translateY(-15px); opacity: 0; }
+.dropdown-slide-leave-to { transform: translateY(-15px); opacity: 0; }
 
 .modal-fade-enter-active,
-.modal-fade-leave-active {
-  transition: opacity 0.25s ease;
-}
+.modal-fade-leave-active { transition: opacity 0.25s ease; }
 .modal-fade-enter-from,
-.modal-fade-leave-to {
-  opacity: 0;
+.modal-fade-leave-to { opacity: 0; }
+
+.blur-background {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(2px);
 }
 </style>

@@ -12,22 +12,13 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\FavoriteController;
 use App\Models\ProductVariant;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\CustomDesignController;
 
-/*
-|--------------------------------------------------------------------------
-| Cart (variants)
-|--------------------------------------------------------------------------
-*/
 Route::post('/cart/add/{variantId}', [CartController::class, 'add'])->name('cart.add');
 Route::post('/cart/remove/{variantId}', [CartController::class, 'remove'])->name('cart.remove');
 Route::post('/cart/update/{variantId}', [CartController::class, 'update'])->name('cart.update');
 Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
-/*
-|--------------------------------------------------------------------------
-| Public pages
-|--------------------------------------------------------------------------
-*/
 Route::get('/', function () {
     return Inertia::render('HomeView');
 })->name('home');
@@ -37,11 +28,6 @@ Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.s
 Route::get('/MenWear', [ProductPageController::class, 'men'])->name('menwear');
 Route::get('/WomanWear', [ProductPageController::class, 'women'])->name('womanwear');
 
-/*
-|--------------------------------------------------------------------------
-| Cart page - build items from variants
-|--------------------------------------------------------------------------
-*/
 Route::get('/cart', function () {
     $cart  = session()->get('cart', []);
     $views = session()->get('cart_views', []);
@@ -81,11 +67,6 @@ Route::get('/favorites', function () {
     return Inertia::render('FavoritesView');
 })->name('favorites');
 
-/*
-|--------------------------------------------------------------------------
-| Admin
-|--------------------------------------------------------------------------
-*/
 Route::middleware(['auth', 'is_admin'])->prefix('admin')->group(function () {
 
     // Dashboard (blade view)
@@ -105,11 +86,6 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->group(function () {
 
 });
 
-/*
-|--------------------------------------------------------------------------
-| Checkout (only verified)
-|--------------------------------------------------------------------------
-*/
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
@@ -119,11 +95,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Profile
-|--------------------------------------------------------------------------
-*/
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile/{section?}', [ProfileController::class, 'show'])
         ->where('section', 'settings')
@@ -144,6 +115,16 @@ Route::get('/debug-cart', function() {
         'cart' => session()->get('cart', []),
         'cart_views' => session()->get('cart_views', []),
     ]);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/design', [CustomDesignController::class, 'create'])->name('design.index');
+    Route::post('/design/store', [CustomDesignController::class, 'store'])->name('design.store');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/design/{id}', [CustomDesignController::class, 'show'])->name('design.show');
+    Route::post('/design/{id}/cart', [CustomDesignController::class, 'addToCart'])->name('design.cart');
 });
 
 require __DIR__ . '/settings.php';

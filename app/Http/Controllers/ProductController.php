@@ -25,7 +25,7 @@ class ProductController extends Controller
                 'id' => $v->id,
                 'size' => $v->size,
                 'color' => $v->color,
-                'price' => $v->price, // nullable
+                'price' => $v->price, 
             ])->values(),
         ]);
     }

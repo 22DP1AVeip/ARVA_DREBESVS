@@ -30,11 +30,9 @@ const view = computed(() => (page.props.view as Gender) ?? "men");
 
 const variants = computed<Variant[]>(() => page.props.variants ?? []);
 
-// favorites IDs no Inertia shared
 const favoritesIds = computed<number[]>(() => page.props.favoritesIds ?? []);
 const isFavorite = computed(() => favoritesIds.value.includes(product.value.id));
 
-// sirsniņas animācija
 const heartBump = ref(false);
 
 function toggleFavorite() {
@@ -189,6 +187,10 @@ function addToCart() {
           >
             {{ adding ? "Pievieno..." : "Pievienot grozam" }}
           </button>
+
+          
+           <a :href="`/products/${product.id}/design`" class="design-btn">🎨 Pielāgot dizainu</a>
+
         </div>
       </div>
     </div>
@@ -237,11 +239,32 @@ function addToCart() {
   color:#fff;
 }
 
-/* HEART */
-.title-row{display:flex;justify-content:space-between;align-items:center;gap:10px;}
 .heart{width:42px;height:42px;border-radius:999px;border:1px solid rgba(0,0,0,.15);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s ease;}
 .heart-ico{width:22px;height:22px;}
 .heart-ico path{fill:transparent;stroke:#000;stroke-width:1.8;transition:fill .2s ease;}
 .heart.active .heart-ico path{fill:#de7388;stroke:#000;}
 .heart.bump{transform:scale(1.15);}
+.title-row{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+
+.design-btn {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 14px;
+  border-radius: 10px;
+  border: 2px solid #6c63ff;
+  background: #fff;
+  color: #6c63ff;
+  font-weight: 800;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  transition: background .2s, color .2s;
+  box-sizing: border-box;
+}
+.design-btn:hover {
+  background: #6c63ff;
+  color: #fff;
+}
 </style>
