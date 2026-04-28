@@ -13,6 +13,7 @@ class Product extends Model
         'name',
         'price',
         'category',
+        'gender',
         'image_men',
         'image_women',
     ];

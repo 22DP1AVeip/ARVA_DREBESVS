@@ -3,7 +3,7 @@ import UserInfo from '@/components/UserInfo.vue';
 import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import type { User } from '@/types';
 import { Link, router } from '@inertiajs/vue3';
-import { LogOut, Settings } from 'lucide-vue-next';
+import { LogOut, Settings, LayoutDashboard } from 'lucide-vue-next';
 
 interface Props {
     user: User;
@@ -30,6 +30,12 @@ defineProps<Props>();
                 Iestatījumi
             </Link>
         </DropdownMenuItem>
+        <DropdownMenuItem v-if="user.is_admin" :as-child="true">
+            <Link class="admin-menu-item block w-full" href="/admin" as="button">
+                <LayoutDashboard class="mr-2 h-4 w-4" />
+                Admin panelis
+            </Link>
+        </DropdownMenuItem>
     </DropdownMenuGroup>
     <DropdownMenuSeparator />
     <DropdownMenuItem :as-child="true">
@@ -39,3 +45,10 @@ defineProps<Props>();
         </Link>
     </DropdownMenuItem>
 </template>
+
+<style scoped>
+.admin-menu-item {
+    color: #97276b;
+    font-weight: 600;
+}
+</style>

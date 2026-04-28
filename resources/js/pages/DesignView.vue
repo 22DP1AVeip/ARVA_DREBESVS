@@ -123,7 +123,7 @@ function selectGarment(g: Garment) {
     selectedGarment.value = g
 }
 
-function submit() {
+function submit(addToCart = false) {
     if (submitting.value) return
     submitting.value = true
     const form = new FormData()
@@ -133,6 +133,7 @@ function submit() {
     form.append('design_size',     String(designSize.value))
     if (selectedPreset.value) form.append('preset_design', selectedPreset.value)
     if (uploadedFile.value)   form.append('design_image',  uploadedFile.value)
+    if (addToCart)            form.append('add_to_cart', '1')
     router.post('/design/store', form, {
         forceFormData: true,
         onFinish: () => (submitting.value = false),
@@ -259,10 +260,15 @@ function submit() {
                         <div class="hint">Velc dizainu ar peli lai mainitu poziciju</div>
                     </div>
 
-                    <!-- Saglabāt -->
-                    <button class="submit-btn" type="button" :disabled="submitting" @click="submit">
-                        {{ submitting ? 'Saglaba...' : 'Saglabt dizainu' }}
-                    </button>
+                    <!-- Darbības -->
+                    <div class="action-btns">
+                        <button class="submit-btn" type="button" :disabled="submitting" @click="submit(false)">
+                            {{ submitting ? 'Saglabā...' : 'Saglabāt dizainu' }}
+                        </button>
+                        <button class="cart-btn" type="button" :disabled="submitting" @click="submit(true)">
+                            🛒 Ielikt grozam
+                        </button>
+                    </div>
 
                 </div>
             </div>
@@ -320,7 +326,11 @@ function submit() {
 .size-input { width: 80px; padding: 8px; border: 1.5px solid #e5e5e5; border-radius: 6px; font-size: 15px; font-weight: 700; text-align: center; color: #111; }
 .hint { font-size: 11px; color: #999; margin-top: 6px; }
 
-.submit-btn { width: 100%; padding: 14px; border-radius: 8px; border: none; background: #111; color: #fff; font-weight: 800; font-size: 15px; cursor: pointer; transition: opacity .2s; letter-spacing: 0.3px; }
-.submit-btn:hover { opacity: 0.85; }
+.action-btns { display: flex; flex-direction: column; gap: 10px; }
+.submit-btn { width: 100%; padding: 13px; border-radius: 8px; border: 1.5px solid #111; background: #fff; color: #111; font-weight: 800; font-size: 15px; cursor: pointer; transition: all .2s; }
+.submit-btn:hover { background: #111; color: #fff; }
 .submit-btn:disabled { opacity: .4; cursor: not-allowed; }
+.cart-btn { width: 100%; padding: 13px; border-radius: 8px; border: none; background: linear-gradient(120deg, #072536, #97276b); color: #fff; font-weight: 800; font-size: 15px; cursor: pointer; transition: filter .2s; }
+.cart-btn:hover { filter: brightness(1.1); }
+.cart-btn:disabled { opacity: .4; cursor: not-allowed; }
 </style>

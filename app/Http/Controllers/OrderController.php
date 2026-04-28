@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\PointTransaction;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -27,8 +28,14 @@ class OrderController extends Controller
 
         $order->load(['items']);
 
+        $pointsEarned = PointTransaction::where('order_id', $order->id)
+            ->where('type', 'earn')
+            ->value('points') ?? 0;
+
         return Inertia::render('Profile/OrderShow', [
-            'order' => $order,
+            'order'        => $order,
+            'pointsEarned' => $pointsEarned,
+            'userPoints'   => $request->user()->points,
         ]);
     }
 }

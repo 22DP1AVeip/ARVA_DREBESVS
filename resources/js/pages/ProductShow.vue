@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import NavBar from "../components/NavBar.vue";
 import Footer from "../components/NavFooter.vue";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { usePage, Link, router } from "@inertiajs/vue3";
 
 type Gender = "men" | "women";
@@ -25,8 +25,39 @@ interface Variant {
 
 const page = usePage<any>();
 
-const product = computed(() => page.props.product as DbProduct);
-const view = computed(() => (page.props.view as Gender) ?? "men");
+const product    = computed(() => page.props.product as DbProduct);
+const view       = computed(() => (page.props.view as Gender) ?? "men");
+const reviews    = computed<any[]>(() => page.props.reviews ?? []);
+const userReview = computed<any>(() => page.props.userReview ?? null);
+const avgRating  = computed<number|null>(() => page.props.avgRating ?? null);
+const auth       = computed(() => (page.props.auth as any)?.user ?? null);
+
+// Atsauksmes forma
+const reviewRating     = ref<number>(0);
+const reviewComment    = ref<string>("");
+const hoverStar        = ref<number>(0);
+const reviewSubmitting = ref(false);
+
+watch(userReview, (r) => {
+  reviewRating.value  = r?.rating  ?? 0;
+  reviewComment.value = r?.comment ?? "";
+}, { immediate: true });
+
+function submitReview() {
+  if (!reviewRating.value) return;
+  reviewSubmitting.value = true;
+  router.post(`/product/${product.value.id}/review`, {
+    rating:  reviewRating.value,
+    comment: reviewComment.value,
+  }, {
+    preserveScroll: true,
+    onFinish: () => (reviewSubmitting.value = false),
+  });
+}
+
+function deleteReview() {
+  router.delete(`/product/${product.value.id}/review`, { preserveScroll: true });
+}
 
 const variants = computed<Variant[]>(() => page.props.variants ?? []);
 
@@ -188,10 +219,93 @@ function addToCart() {
             {{ adding ? "Pievieno..." : "Pievienot grozam" }}
           </button>
 
-          
-           <a :href="`/products/${product.id}/design`" class="design-btn">🎨 Pielāgot dizainu</a>
-
         </div>
+      </div>
+
+      <!-- ATSAUKSMES -->
+      <div class="reviews-section">
+
+        <!-- VIRSRAKSTS AR VIDĒJO VĒRTĒJUMU -->
+        <div class="reviews-head">
+          <h2 class="reviews-title">Atsauksmes</h2>
+          <div v-if="avgRating" class="avg-rating">
+            <span class="avg-stars">
+              <span v-for="i in 5" :key="i" class="star-icon" :class="i <= Math.round(avgRating) ? 'filled' : ''">★</span>
+            </span>
+            <span class="avg-num">{{ avgRating }} / 5</span>
+            <span class="avg-count">({{ reviews.length }} atsauksme{{ reviews.length === 1 ? '' : 's' }})</span>
+          </div>
+          <div v-else class="avg-empty">Vēl nav atsauksmju.</div>
+        </div>
+
+        <!-- FORMA — tikai pieslēgtiem lietotājiem -->
+        <div v-if="auth" class="review-form-card">
+          <div class="review-form-title">
+            {{ userReview ? 'Tava atsauksme' : 'Raksti atsauksmi' }}
+          </div>
+
+          <!-- Zvaigznes -->
+          <div class="stars-input">
+            <button
+              v-for="i in 5"
+              :key="i"
+              type="button"
+              class="star-btn"
+              :class="{ active: i <= (hoverStar || reviewRating) }"
+              @mouseenter="hoverStar = i"
+              @mouseleave="hoverStar = 0"
+              @click="reviewRating = i"
+            >★</button>
+          </div>
+
+          <textarea
+            v-model="reviewComment"
+            class="review-textarea"
+            placeholder="Uzraksti savu viedokli par šo produktu... (neobligāti)"
+            rows="3"
+          />
+
+          <div class="review-form-actions">
+            <button
+              class="review-submit-btn"
+              :disabled="!reviewRating || reviewSubmitting"
+              @click="submitReview"
+            >
+              {{ reviewSubmitting ? 'Saglabā...' : (userReview ? 'Atjaunināt' : 'Publicēt') }}
+            </button>
+            <button
+              v-if="userReview"
+              class="review-delete-btn"
+              @click="deleteReview"
+            >
+              Dzēst
+            </button>
+          </div>
+        </div>
+
+        <div v-else class="review-login-hint">
+          <Link href="/login" class="review-login-link">Pieslēdzies</Link>, lai atstātu atsauksmi.
+        </div>
+
+        <!-- ATSAUKSMJU SARAKSTS -->
+        <div v-if="reviews.length" class="reviews-list">
+          <div v-for="r in reviews" :key="r.id" class="review-card" :class="{ 'own': auth && r.user_id === auth.id }">
+            <div class="review-top">
+              <div class="review-author-wrap">
+                <div class="review-avatar">{{ r.user_name.charAt(0).toUpperCase() }}</div>
+                <div>
+                  <div class="review-author">{{ r.user_name }}</div>
+                  <div class="review-date">{{ r.created_at }}</div>
+                </div>
+              </div>
+              <div class="review-stars">
+                <span v-for="i in 5" :key="i" class="star-icon" :class="i <= r.rating ? 'filled' : ''">★</span>
+              </div>
+            </div>
+            <p v-if="r.comment" class="review-comment">{{ r.comment }}</p>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -246,25 +360,116 @@ function addToCart() {
 .heart.bump{transform:scale(1.15);}
 .title-row{display:flex;justify-content:space-between;align-items:center;gap:10px;}
 
-.design-btn {
-  display: block;
-  width: 100%;
-  margin-top: 10px;
-  padding: 14px;
-  border-radius: 10px;
-  border: 2px solid #6c63ff;
+/* ── ATSAUKSMES ─────────────────────────────────────── */
+.reviews-section {
+  margin-top: 40px;
+  border-top: 1px solid rgba(7,37,54,.1);
+  padding-top: 32px;
+}
+
+.reviews-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.reviews-title { font-size: 20px; font-weight: 900; color: #072536; margin: 0; }
+.avg-rating    { display: flex; align-items: center; gap: 8px; }
+.avg-stars     { display: flex; gap: 2px; }
+.avg-num       { font-size: 15px; font-weight: 800; color: #072536; }
+.avg-count     { font-size: 13px; color: rgba(7,37,54,.55); font-weight: 600; }
+.avg-empty     { font-size: 14px; color: rgba(7,37,54,.5); font-weight: 600; }
+
+/* Zvaigznes */
+.star-icon { font-size: 18px; color: #ddd; transition: color .1s; }
+.star-icon.filled { color: #f5a623; }
+
+/* Ievades forma */
+.review-form-card {
   background: #fff;
-  color: #6c63ff;
-  font-weight: 800;
-  font-size: 16px;
-  cursor: pointer;
-  text-align: center;
-  text-decoration: none;
-  transition: background .2s, color .2s;
-  box-sizing: border-box;
+  border: 1px solid rgba(7,37,54,.1);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 16px rgba(7,37,54,.06);
 }
-.design-btn:hover {
-  background: #6c63ff;
-  color: #fff;
+.review-form-title { font-size: 15px; font-weight: 800; color: #072536; margin-bottom: 12px; }
+
+.stars-input { display: flex; gap: 4px; margin-bottom: 12px; }
+.star-btn {
+  background: none; border: none; cursor: pointer;
+  font-size: 32px; color: #ddd; transition: color .1s, transform .1s;
+  padding: 0; line-height: 1;
 }
+.star-btn.active { color: #f5a623; }
+.star-btn:hover  { transform: scale(1.15); }
+
+.review-textarea {
+  width: 100%;
+  border: 1px solid rgba(7,37,54,.15);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  color: #072536;
+  background: #f7fbfc;
+  transition: border-color .15s;
+}
+.review-textarea:focus { outline: none; border-color: #13c4ab; box-shadow: 0 0 0 3px rgba(19,196,171,.15); }
+
+.review-form-actions { display: flex; gap: 10px; margin-top: 12px; }
+
+.review-submit-btn {
+  padding: 10px 22px; border-radius: 10px;
+  background: linear-gradient(120deg, #072536, #97276b);
+  color: #fff; border: none; font-weight: 700; font-size: 14px;
+  cursor: pointer; transition: filter .15s;
+}
+.review-submit-btn:hover    { filter: brightness(1.1); }
+.review-submit-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+.review-delete-btn {
+  padding: 10px 16px; border-radius: 10px;
+  background: transparent; border: 1px solid rgba(192,57,43,.35);
+  color: #c0392b; font-weight: 700; font-size: 14px; cursor: pointer;
+  transition: background .15s;
+}
+.review-delete-btn:hover { background: #c0392b; color: #fff; }
+
+.review-login-hint {
+  font-size: 14px; font-weight: 600; color: rgba(7,37,54,.6);
+  margin-bottom: 20px;
+}
+.review-login-link { color: #06616d; font-weight: 700; text-decoration: underline; }
+
+/* Atsauksmju saraksts */
+.reviews-list { display: grid; gap: 12px; }
+
+.review-card {
+  background: #fff;
+  border: 1px solid rgba(7,37,54,.08);
+  border-radius: 14px;
+  padding: 16px 18px;
+  box-shadow: 0 3px 12px rgba(7,37,54,.05);
+}
+.review-card.own { border-color: rgba(19,196,171,.35); background: rgba(19,196,171,.03); }
+
+.review-top {
+  display: flex; justify-content: space-between;
+  align-items: flex-start; gap: 12px; margin-bottom: 10px;
+}
+.review-author-wrap { display: flex; align-items: center; gap: 10px; }
+.review-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, #072536, #97276b);
+  color: #fff; font-weight: 800; font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.review-author { font-weight: 700; font-size: 14px; color: #072536; }
+.review-date   { font-size: 12px; color: rgba(7,37,54,.5); margin-top: 2px; }
+.review-stars  { display: flex; gap: 2px; flex-shrink: 0; }
+.review-comment { font-size: 14px; color: rgba(7,37,54,.8); line-height: 1.6; margin: 0; }
 </style>

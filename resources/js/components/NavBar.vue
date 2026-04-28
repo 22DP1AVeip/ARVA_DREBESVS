@@ -9,6 +9,8 @@
     </div>
 
     <div class="right-section">
+      <Link href="/design" class="design-nav-btn">🎨 Dizaina veidotājs</Link>
+
       <button class="basket-button" @click="toggleCart" aria-label="Grozs">
         <img src="/bildites/basket_icon.png" alt="Grozs" class="basket-icon" />
         <span v-if="cartItemCount > 0" class="cart-count">{{ cartItemCount }}</span>
@@ -28,7 +30,8 @@
           <div v-if="isUserMenuOpen" class="user-dropdown-menu">
             <Link href="/profile/settings" class="dropdown-item" @click="closeUserMenu">Profils</Link>
             <Link href="/profile/favorites" class="dropdown-item" @click="closeUserMenu">Favorīti</Link>
-            <Link href="/design" class="dropdown-item design-item" @click="closeUserMenu">🎨 Dizaina veidotājs</Link>
+            <Link href="/profile/designs" class="dropdown-item" @click="closeUserMenu">🎨 Mani dizaini</Link>
+            <Link v-if="auth.user?.is_admin" href="/admin" class="dropdown-item admin-item" @click="closeUserMenu">⚙️ Admin panelis</Link>
             <button class="dropdown-item logout-item" @click="logout">Izrakstīties</button>
           </div>
         </transition>
@@ -136,6 +139,7 @@ interface User {
   id: number;
   name: string;
   email: string;
+  is_admin?: boolean;
 }
 
 interface PageProps extends InertiaPageProps {
@@ -250,6 +254,29 @@ function closeAllMenus() {
   gap: 20px;
 }
 
+.design-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(7, 37, 54, 0.15);
+  background: #ffffff;
+  color: #072536;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+}
+
+.design-nav-btn:hover {
+  background: #072536;
+  color: #ffffff;
+  border-color: #072536;
+  transform: translateY(-1px);
+}
+
 .basket-button {
   position: relative;
   background: none;
@@ -346,6 +373,17 @@ function closeAllMenus() {
 
 .design-item:hover {
   background-color: #f0eeff;
+}
+
+.admin-item {
+  color: #97276b;
+  font-weight: 600;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+}
+
+.admin-item:hover {
+  background-color: #fdf0f7;
 }
 
 .logout-item {

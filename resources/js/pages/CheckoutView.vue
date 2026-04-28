@@ -2,7 +2,7 @@
 import NavBar from "../components/NavBar.vue";
 import Footer from "../components/NavFooter.vue";
 import { computed, ref } from "vue";
-import { useForm, usePage, Link } from "@inertiajs/vue3";
+import { useForm, usePage, Link, router } from "@inertiajs/vue3";
 
 const page = usePage<any>();
 const cart = computed(() => page.props.cart ?? { count: 0, items: [] });
@@ -57,6 +57,51 @@ function formatCvv(e: Event) {
   cardCvv.value = value;
 }
 
+// --- Kupons
+const couponInput = ref("");
+const coupon = ref<{ discount_percent: number; name: string } | null>(null);
+const couponError = ref("");
+const couponLoading = ref(false);
+
+const discount = computed(() =>
+  coupon.value ? subtotal.value * (coupon.value.discount_percent / 100) : 0
+);
+const total = computed(() => subtotal.value - discount.value);
+
+async function applyCoupon() {
+  const code = couponInput.value.trim().toUpperCase();
+  if (!code) return;
+  couponError.value = "";
+  coupon.value = null;
+  couponLoading.value = true;
+
+  try {
+    const csrf = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content
+      ?? document.cookie.split('; ').find(r => r.startsWith('XSRF-TOKEN='))?.split('=')[1]?.replace(/%3D/g, '=') ?? "";
+    const res = await fetch("/checkout/validate-coupon", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrf },
+      body: JSON.stringify({ code }),
+    });
+    const data = await res.json();
+    if (data.valid) {
+      coupon.value = { discount_percent: data.discount_percent, name: data.name };
+    } else {
+      couponError.value = data.message;
+    }
+  } catch {
+    couponError.value = "Savienojuma kļūda.";
+  } finally {
+    couponLoading.value = false;
+  }
+}
+
+function removeCoupon() {
+  coupon.value = null;
+  couponInput.value = "";
+  couponError.value = "";
+}
+
 // --- Checkout form
 const form = useForm({
   full_name: "",
@@ -67,6 +112,7 @@ const form = useForm({
   postcode: "",
   country: "Latvija",
   payment_method: "card",
+  coupon_code: "",
 });
 
 function submit() {
@@ -79,6 +125,7 @@ function submit() {
     }
   }
 
+  form.coupon_code = coupon.value ? couponInput.value.trim().toUpperCase() : "";
   form.post("/checkout");
 }
 </script>
@@ -105,13 +152,15 @@ function submit() {
 
           <div class="field">
             <label>Vārds Uzvārds</label>
-            <input v-model="form.full_name" placeholder="Jānis Bērziņš" />
+            <input v-model="form.full_name" placeholder="Jānis Bērziņš" :class="{ 'input-err': form.errors.full_name }" />
+            <div v-if="form.errors.full_name" class="err">{{ form.errors.full_name }}</div>
           </div>
 
           <div class="row">
             <div class="field">
               <label>E-pasts</label>
-              <input v-model="form.email" placeholder="janis@email.com" />
+              <input v-model="form.email" placeholder="janis@email.com" :class="{ 'input-err': form.errors.email }" />
+              <div v-if="form.errors.email" class="err">{{ form.errors.email }}</div>
             </div>
             <div class="field">
               <label>Telefons</label>
@@ -121,23 +170,27 @@ function submit() {
 
           <div class="field">
             <label>Adrese</label>
-            <input v-model="form.address" placeholder="Brīvības iela 1" />
+            <input v-model="form.address" placeholder="Brīvības iela 1" :class="{ 'input-err': form.errors.address }" />
+            <div v-if="form.errors.address" class="err">{{ form.errors.address }}</div>
           </div>
 
           <div class="row">
             <div class="field">
               <label>Pilsēta</label>
-              <input v-model="form.city" placeholder="Rīga" />
+              <input v-model="form.city" placeholder="Rīga" :class="{ 'input-err': form.errors.city }" />
+              <div v-if="form.errors.city" class="err">{{ form.errors.city }}</div>
             </div>
             <div class="field">
               <label>Pasta indekss</label>
-              <input v-model="form.postcode" placeholder="LV-1001" />
+              <input v-model="form.postcode" placeholder="LV-1001" :class="{ 'input-err': form.errors.postcode }" />
+              <div v-if="form.errors.postcode" class="err">{{ form.errors.postcode }}</div>
             </div>
           </div>
 
           <div class="field">
             <label>Valsts</label>
-            <input v-model="form.country" />
+            <input v-model="form.country" :class="{ 'input-err': form.errors.country }" />
+            <div v-if="form.errors.country" class="err">{{ form.errors.country }}</div>
           </div>
 
           <hr class="sep" />
@@ -216,9 +269,46 @@ function submit() {
 
           <hr class="sep" />
 
-          <div class="sum">
+          <!-- KUPONS -->
+          <div class="coupon-section">
+            <div class="coupon-label">Kupona kods</div>
+
+            <div v-if="coupon" class="coupon-applied">
+              <div class="coupon-applied-info">
+                <span class="coupon-tag">🎟️ {{ coupon.name }}</span>
+                <span class="coupon-pct">-{{ coupon.discount_percent }}%</span>
+              </div>
+              <button class="coupon-remove" @click="removeCoupon">✕ Noņemt</button>
+            </div>
+
+            <div v-else class="coupon-row">
+              <input
+                v-model="couponInput"
+                placeholder="ARVA-XXXXXXXX"
+                class="coupon-input"
+                @keyup.enter="applyCoupon"
+              />
+              <button class="coupon-btn" :disabled="couponLoading" @click="applyCoupon">
+                {{ couponLoading ? "..." : "Pielietot" }}
+              </button>
+            </div>
+
+            <div v-if="couponError" class="coupon-error">{{ couponError }}</div>
+          </div>
+
+          <hr class="sep" />
+
+          <div class="sum-row">
+            <span>Starpsumma:</span>
+            <span>€{{ subtotal.toFixed(2) }}</span>
+          </div>
+          <div v-if="coupon" class="sum-row discount-row">
+            <span>Atlaide ({{ coupon.discount_percent }}%):</span>
+            <span>-€{{ discount.toFixed(2) }}</span>
+          </div>
+          <div class="sum sum-total">
             <span>Kopā:</span>
-            <strong>€{{ subtotal.toFixed(2) }}</strong>
+            <strong>€{{ total.toFixed(2) }}</strong>
           </div>
         </div>
       </div>
@@ -260,8 +350,45 @@ input, select { padding:10px;border:1px solid #ddd;border-radius:8px; }
 .muted { font-size:13px;color:#666; }
 .sum { display:flex;justify-content:space-between;font-size:16px; }
 
+/* KUPONS */
+.coupon-section { margin: 4px 0 2px; }
+.coupon-label { font-size:12px;font-weight:700;color:#888;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em; }
+
+.coupon-row { display:flex;gap:8px; }
+.coupon-input {
+  flex:1;padding:9px 12px;border:1.5px solid #ddd;border-radius:8px;
+  font-size:13px;font-family:monospace;letter-spacing:.05em;
+}
+.coupon-input:focus { outline:none;border-color:#13c4ab;box-shadow:0 0 0 3px rgba(19,196,171,.15); }
+
+.coupon-btn {
+  padding:9px 14px;background:#072536;color:#fff;border:none;
+  border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;
+}
+.coupon-btn:hover { background:#0f3a4c; }
+.coupon-btn:disabled { opacity:.6;cursor:not-allowed; }
+
+.coupon-applied {
+  display:flex;justify-content:space-between;align-items:center;
+  background:rgba(19,196,171,.1);border:1.5px solid rgba(19,196,171,.4);
+  border-radius:10px;padding:10px 12px;
+}
+.coupon-applied-info { display:flex;align-items:center;gap:10px; }
+.coupon-tag { font-weight:700;font-size:13px;color:#06616d; }
+.coupon-pct { font-size:14px;font-weight:900;color:#06616d; }
+.coupon-remove { font-size:12px;font-weight:700;color:#888;background:none;border:none;cursor:pointer; }
+.coupon-remove:hover { color:#c0392b; }
+
+.coupon-error { font-size:12px;font-weight:700;color:#c0392b;margin-top:6px; }
+
+.sum-row { display:flex;justify-content:space-between;font-size:14px;color:#555;margin-bottom:6px; }
+.discount-row { color:#06616d;font-weight:700; }
+.sum-total { font-size:17px;font-weight:900;margin-top:4px; }
+
 .head { display:flex;justify-content:space-between;align-items:center;margin-bottom:10px; }
 .back { text-decoration:none;color:#555;font-weight:700; }
 .empty { font-weight:700;color:#666; }
 .link { text-decoration:underline;color:#111; }
+.err { color:#c0392b;font-size:12px;font-weight:700;margin-top:3px; }
+.input-err { border-color:#c0392b !important; }
 </style>

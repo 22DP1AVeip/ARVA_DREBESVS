@@ -8,6 +8,7 @@ use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\CustomDesign;
 use App\Models\Favorite;
 
 class HandleInertiaRequests extends Middleware
@@ -60,15 +61,54 @@ class HandleInertiaRequests extends Middleware
                         ->keyBy('id')
                     : collect();
 
+                // Sadalīt custom dizainu un parasto variantu atslēgas
+                $customKeys  = array_filter($variantIds, fn($k) => str_starts_with((string)$k, 'custom_'));
+                $variantKeys = array_filter($variantIds, fn($k) => !str_starts_with((string)$k, 'custom_'));
+
+                $variants = $variantKeys
+                    ? ProductVariant::with('product')->whereIn('id', $variantKeys)->get()->keyBy('id')
+                    : collect();
+
+                // Custom dizainu modeļi
+                $customIds     = array_map(fn($k) => (int) str_replace('custom_', '', $k), $customKeys);
+                $customDesigns = $customIds
+                    ? CustomDesign::whereIn('id', $customIds)->get()->keyBy('id')
+                    : collect();
+
+                $garmentNames = [
+                    'tshirt' => 'Krekls', 'hoodie' => 'Hudija', 'jeans' => 'Bikses',
+                    'tshirt_w' => 'Krekls', 'hoodie_w' => 'Hudija', 'jeans_w' => 'Bikses',
+                ];
+                $garmentFiles = [
+                    'tshirt' => 't-shirt_dizaina.png', 'hoodie' => 'Hoodie_dizaina.jpg', 'jeans' => 'Jeans_dizaina.jpg',
+                    'tshirt_w' => 't-shirt_dizaina.png', 'hoodie_w' => 'Hoodie_dizaina.jpg', 'jeans_w' => 'Jeans_dizaina.jpg',
+                ];
+
                 $items = [];
                 foreach ($variantIds as $variantId) {
-                    $variant = $variants->get((int) $variantId);
-                    if (!$variant || !$variant->product) {
+                    if (str_starts_with((string)$variantId, 'custom_')) {
+                        $designId = (int) str_replace('custom_', '', $variantId);
+                        $design   = $customDesigns->get($designId);
+                        if (!$design) continue;
+                        $file = $garmentFiles[$design->garment_id] ?? null;
+                        $items[] = [
+                            'id'        => $variantId,
+                            'name'      => 'Pielāgots ' . ($garmentNames[$design->garment_id] ?? 'dizains'),
+                            'price'     => 25.00,
+                            'image'     => $file ? "/designs/garments/{$file}" : null,
+                            'is_custom' => true,
+                            'color'     => $design->base_color,
+                            'size'      => '—',
+                            'qty'       => (int) ($cart[$variantId] ?? 0),
+                        ];
                         continue;
                     }
 
+                    $variant = $variants->get((int) $variantId);
+                    if (!$variant || !$variant->product) continue;
+
                     $product = $variant->product;
-                    $view = $views[$variantId] ?? $views[(int)$variantId] ?? 'men';
+                    $view    = $views[$variantId] ?? $views[(int)$variantId] ?? 'men';
 
                     $items[] = [
                         'id'          => (int) $variant->id,
@@ -80,6 +120,7 @@ class HandleInertiaRequests extends Middleware
                                             ? ($product->image_women ?? $product->image_men)
                                             : ($product->image_men ?? $product->image_women),
                         'qty'         => (int) ($cart[$variantId] ?? 0),
+                        'is_custom'   => false,
                     ];
                 }
 
@@ -88,6 +129,12 @@ class HandleInertiaRequests extends Middleware
                     'items' => $items,
                 ];
             },
+
+            // FLASH
+            'flash' => [
+                'success' => session()->pull('success'),
+                'error'   => session()->pull('error'),
+            ],
 
             // FAVORITES
             'favoritesIds' => function () use ($request) {

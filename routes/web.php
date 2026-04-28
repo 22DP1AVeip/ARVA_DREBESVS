@@ -12,6 +12,8 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\FavoriteController;
 use App\Models\ProductVariant;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\CouponController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\CustomDesignController;
 
 Route::post('/cart/add/{variantId}', [CartController::class, 'add'])->name('cart.add');
@@ -24,6 +26,10 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
+Route::middleware('auth')->group(function () {
+    Route::post('/product/{product}/review', [ReviewController::class, 'store'])->name('review.store');
+    Route::delete('/product/{product}/review', [ReviewController::class, 'destroy'])->name('review.destroy');
+});
 
 Route::get('/MenWear', [ProductPageController::class, 'men'])->name('menwear');
 Route::get('/WomanWear', [ProductPageController::class, 'women'])->name('womanwear');
@@ -89,6 +95,7 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::post('/checkout/validate-coupon', [CheckoutController::class, 'validateCoupon'])->name('checkout.validate-coupon');
 
     Route::get('/dashboard', function () {
         return Inertia::render('HomeView');
@@ -108,6 +115,12 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/profile/favorites', [FavoriteController::class, 'index'])->name('profile.favorites');
     Route::post('/favorites/toggle/{productId}', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
+
+    Route::get('/profile/coupons', [CouponController::class, 'index'])->name('profile.coupons');
+    Route::post('/profile/coupons/redeem/{coupon}', [CouponController::class, 'redeem'])->name('profile.coupons.redeem');
+
+    Route::get('/profile/designs', [CustomDesignController::class, 'profileIndex'])->name('profile.designs');
+    Route::delete('/profile/designs/{id}', [CustomDesignController::class, 'destroy'])->name('profile.designs.destroy');
 });
 
 Route::get('/debug-cart', function() {

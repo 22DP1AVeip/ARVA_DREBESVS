@@ -4,86 +4,102 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="csrf-token" content="{{ csrf_token() }}" />
-    <title>ARVA Admin</title>
+    <title>ARVA — Admin panelis</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900&display=swap');
 
         :root {
-            --bg: #0f0f0f;
-            --surface: #1a1a1a;
-            --surface2: #222222;
-            --border: #2e2e2e;
-            --accent: #e8ff47;
-            --accent-dim: rgba(232,255,71,0.12);
-            --text: #f0f0f0;
-            --text-muted: #777;
-            --danger: #ff4f4f;
-            --success: #4fff9a;
-            --radius: 10px;
+            --ink:        #072536;
+            --ink-soft:   rgba(7,37,54,.65);
+            --ink-muted:  rgba(7,37,54,.4);
+            --teal:       #13c4ab;
+            --teal-dim:   rgba(19,196,171,.12);
+            --teal-dark:  #06616d;
+            --pink:       #de7388;
+            --purple:     #97276b;
+            --purple-dim: rgba(151,39,107,.08);
+            --bg:         #ffffff;
+            --bg-soft:    #f7fbfc;
+            --bg-card:    #ffffff;
+            --border:     rgba(7,37,54,.1);
+            --shadow:     0 8px 32px rgba(7,37,54,.1);
+            --shadow-lg:  0 20px 50px rgba(7,37,54,.14);
+            --radius:     16px;
+            --radius-sm:  10px;
+            --sidebar-w:  240px;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'DM Sans', sans-serif;
-            background: var(--bg);
-            color: var(--text);
+            background: var(--bg-soft);
+            color: var(--ink);
             min-height: 100vh;
             display: flex;
         }
 
-        /* SIDEBAR */
+        /* ── SIDEBAR ─────────────────────────────────────── */
         .sidebar {
-            width: 220px;
-            background: var(--surface);
+            width: var(--sidebar-w);
+            background: var(--bg-card);
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            padding: 24px 0;
             position: fixed;
             top: 0; left: 0; bottom: 0;
             z-index: 100;
+            box-shadow: 4px 0 24px rgba(7,37,54,.06);
         }
 
-        .logo {
-            padding: 0 20px 24px;
+        .sidebar-brand {
+            padding: 24px 20px 20px;
             border-bottom: 1px solid var(--border);
-            margin-bottom: 16px;
         }
 
-        .logo span {
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: 0.06em;
-            color: var(--accent);
+        .sidebar-brand img {
+            height: 44px;
+            width: auto;
         }
 
-        .logo small {
+        .sidebar-label {
             display: block;
-            font-size: 11px;
-            color: var(--text-muted);
-            font-family: 'DM Mono', monospace;
-            margin-top: 2px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+            margin: 20px 20px 8px;
         }
 
         .nav-item {
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 11px 20px;
+            padding: 10px 20px;
             font-size: 14px;
             font-weight: 500;
-            color: var(--text-muted);
+            color: var(--ink-soft);
             cursor: pointer;
-            border-radius: 0;
-            transition: all 0.15s;
             border-left: 3px solid transparent;
+            border-radius: 0;
+            transition: background .15s, color .15s, border-color .15s;
             text-decoration: none;
         }
 
-        .nav-item:hover { color: var(--text); background: var(--surface2); }
-        .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-dim); }
         .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+
+        .nav-item:hover {
+            color: var(--ink);
+            background: var(--bg-soft);
+        }
+
+        .nav-item.active {
+            color: var(--teal-dark);
+            border-left-color: var(--teal);
+            background: var(--teal-dim);
+            font-weight: 600;
+        }
 
         .sidebar-footer {
             margin-top: auto;
@@ -92,17 +108,21 @@
         }
 
         .sidebar-footer a {
-            font-size: 13px;
-            color: var(--text-muted);
-            text-decoration: none;
             display: flex;
             align-items: center;
             gap: 8px;
+            font-size: 13px;
+            color: var(--ink-soft);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color .15s;
         }
 
-        /* MAIN */
+        .sidebar-footer a:hover { color: var(--ink); }
+
+        /* ── MAIN ────────────────────────────────────────── */
         .main {
-            margin-left: 220px;
+            margin-left: var(--sidebar-w);
             flex: 1;
             padding: 32px;
             min-height: 100vh;
@@ -117,14 +137,13 @@
 
         .page-title {
             font-size: 22px;
-            font-weight: 700;
+            font-weight: 800;
+            color: var(--ink);
         }
 
-        .page-title span {
-            color: var(--accent);
-        }
+        .page-title span { color: var(--teal-dark); }
 
-        /* STATS */
+        /* ── STATS ───────────────────────────────────────── */
         .stats {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -133,31 +152,49 @@
         }
 
         .stat-card {
-            background: var(--surface);
+            background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 18px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
         }
 
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+        }
+
+        .stat-card:nth-child(1)::after { background: linear-gradient(90deg, var(--teal), var(--teal-dark)); }
+        .stat-card:nth-child(2)::after { background: linear-gradient(90deg, var(--purple), var(--pink)); }
+        .stat-card:nth-child(3)::after { background: linear-gradient(90deg, var(--pink), var(--purple)); }
+        .stat-card:nth-child(4)::after { background: linear-gradient(90deg, var(--ink), var(--teal-dark)); }
+
         .stat-label {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--ink-muted);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 8px;
+            letter-spacing: .08em;
+            margin-bottom: 10px;
         }
 
         .stat-value {
-            font-size: 28px;
-            font-weight: 700;
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--ink);
+            line-height: 1;
         }
 
-        /* PANEL */
+        /* ── PANEL ───────────────────────────────────────── */
         .panel {
-            background: var(--surface);
+            background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: var(--radius);
+            box-shadow: var(--shadow);
             overflow: hidden;
         }
 
@@ -165,307 +202,400 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px 20px;
+            padding: 18px 22px;
             border-bottom: 1px solid var(--border);
+            background: var(--bg-soft);
         }
 
         .panel-title {
             font-size: 15px;
-            font-weight: 600;
+            font-weight: 700;
+            color: var(--ink);
         }
 
-        /* BUTTONS */
+        /* ── BUTTONS ─────────────────────────────────────── */
         .btn {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 9px 16px;
-            border-radius: 8px;
+            gap: 7px;
+            padding: 9px 18px;
+            border-radius: var(--radius-sm);
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             border: none;
-            transition: all 0.15s;
+            transition: all .15s;
             font-family: 'DM Sans', sans-serif;
+            white-space: nowrap;
         }
 
-        .btn-primary { background: var(--accent); color: #0f0f0f; }
-        .btn-primary:hover { filter: brightness(0.9); }
-        .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
-        .btn-ghost:hover { color: var(--text); border-color: #555; }
-        .btn-danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
-        .btn-danger:hover { background: var(--danger); color: #fff; }
-        .btn-sm { padding: 6px 11px; font-size: 12px; }
+        .btn-primary {
+            background: linear-gradient(120deg, var(--ink), var(--purple));
+            color: #fff;
+        }
+        .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
-        /* TABLE */
+        .btn-teal {
+            background: linear-gradient(120deg, var(--teal-dark), var(--teal));
+            color: #fff;
+        }
+        .btn-teal:hover { filter: brightness(1.08); transform: translateY(-1px); }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--ink-soft);
+            border: 1px solid var(--border);
+        }
+        .btn-ghost:hover { border-color: var(--ink-soft); color: var(--ink); background: var(--bg-soft); }
+
+        .btn-danger {
+            background: transparent;
+            color: #c0392b;
+            border: 1px solid rgba(192,57,43,.3);
+        }
+        .btn-danger:hover { background: #c0392b; color: #fff; border-color: #c0392b; }
+
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+        /* ── TABLE ───────────────────────────────────────── */
         table { width: 100%; border-collapse: collapse; }
 
         thead tr { border-bottom: 1px solid var(--border); }
 
         th {
             text-align: left;
-            padding: 12px 16px;
+            padding: 12px 20px;
             font-size: 11px;
-            font-weight: 600;
-            color: var(--text-muted);
-            font-family: 'DM Mono', monospace;
+            font-weight: 700;
+            color: var(--ink-muted);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: .08em;
         }
 
         td {
-            padding: 13px 16px;
+            padding: 14px 20px;
             font-size: 14px;
             border-bottom: 1px solid var(--border);
+            color: var(--ink);
         }
 
         tr:last-child td { border-bottom: none; }
-        tr:hover td { background: var(--surface2); }
+        tbody tr:hover td { background: var(--bg-soft); }
 
         .badge {
             display: inline-block;
-            padding: 3px 9px;
+            padding: 3px 10px;
             border-radius: 999px;
             font-size: 11px;
-            font-weight: 600;
-            font-family: 'DM Mono', monospace;
+            font-weight: 700;
         }
 
-        .badge-active { background: rgba(79,255,154,0.15); color: var(--success); }
-        .badge-inactive { background: rgba(255,79,79,0.12); color: var(--danger); }
+        .badge-teal  { background: var(--teal-dim);    color: var(--teal-dark); }
+        .badge-purple{ background: var(--purple-dim);  color: var(--purple); }
+        .badge-green { background: rgba(39,174,96,.1); color: #1e8449; }
+        .badge-red   { background: rgba(192,57,43,.1); color: #c0392b; }
 
-        /* MODAL */
+        .actions { display: flex; gap: 6px; }
+
+        /* ── SEARCH BAR ──────────────────────────────────── */
+        .search-wrap { position: relative; }
+
+        .search-wrap svg {
+            position: absolute;
+            left: 11px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            color: var(--ink-muted);
+            pointer-events: none;
+        }
+
+        .search-wrap input {
+            padding-left: 34px !important;
+        }
+
+        /* ── FORMS ───────────────────────────────────────── */
+        .form-group { margin-bottom: 16px; }
+
+        .form-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--ink-muted);
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 6px;
+        }
+
+        input[type=text], input[type=number], input[type=email], select, textarea {
+            width: 100%;
+            background: var(--bg-soft);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            color: var(--ink);
+            font-size: 14px;
+            font-family: 'DM Sans', sans-serif;
+            transition: border-color .15s, box-shadow .15s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(19,196,171,.15);
+        }
+
+        select option { background: #fff; }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-row-4 { display: grid; grid-template-columns: 1fr 1fr 100px 90px 36px; gap: 8px; align-items: end; margin-bottom: 8px; }
+
+        /* ── MODAL ───────────────────────────────────────── */
         .modal-overlay {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(7,37,54,.4);
+            backdrop-filter: blur(4px);
             z-index: 200;
             align-items: center;
             justify-content: center;
+            padding: 20px;
         }
 
         .modal-overlay.open { display: flex; }
 
         .modal {
-            background: var(--surface);
+            background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 28px;
+            border-radius: 20px;
+            padding: 0;
             width: 100%;
-            max-width: 540px;
+            max-width: 560px;
             max-height: 90vh;
-            overflow-y: auto;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-lg);
         }
 
-        .modal-title {
-            font-size: 17px;
-            font-weight: 700;
-            margin-bottom: 20px;
+        .modal-head {
+            padding: 22px 24px 18px;
+            border-bottom: 1px solid var(--border);
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            background: var(--bg-soft);
+        }
+
+        .modal-head h3 {
+            font-size: 17px;
+            font-weight: 800;
         }
 
         .modal-close {
             background: none;
             border: none;
-            color: var(--text-muted);
-            font-size: 20px;
-            cursor: pointer;
-            line-height: 1;
-        }
-
-        /* FORMS */
-        .form-group { margin-bottom: 16px; }
-
-        label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 6px;
-            font-family: 'DM Mono', monospace;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            background: var(--surface2);
-            border: 1px solid var(--border);
+            width: 32px;
+            height: 32px;
             border-radius: 8px;
-            padding: 10px 12px;
-            color: var(--text);
-            font-size: 14px;
-            font-family: 'DM Sans', sans-serif;
-            transition: border-color 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--ink-muted);
+            font-size: 18px;
+            transition: background .15s, color .15s;
         }
 
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--accent);
+        .modal-close:hover { background: var(--border); color: var(--ink); }
+
+        .modal-body {
+            overflow-y: auto;
+            padding: 22px 24px;
+            flex: 1;
         }
 
-        select option { background: var(--surface2); }
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            background: var(--bg-soft);
+        }
 
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-        /* TABS */
+        /* ── TABS ────────────────────────────────────────── */
         .tab-bar {
             display: flex;
             gap: 0;
             border-bottom: 1px solid var(--border);
-            padding: 0 20px;
+            margin: 0 -24px 20px;
+            padding: 0 24px;
         }
 
         .tab {
-            padding: 12px 16px;
+            padding: 10px 16px;
             font-size: 13px;
             font-weight: 600;
-            color: var(--text-muted);
+            color: var(--ink-muted);
             cursor: pointer;
             border-bottom: 2px solid transparent;
             margin-bottom: -1px;
-            transition: all 0.15s;
+            transition: color .15s, border-color .15s;
+            user-select: none;
         }
 
-        .tab:hover { color: var(--text); }
-        .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .tab:hover { color: var(--ink); }
+        .tab.active { color: var(--teal-dark); border-bottom-color: var(--teal); }
 
-        .tab-content { display: none; padding: 20px; }
-        .tab-content.active { display: block; }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
 
-        /* VARIANTS SECTION */
-        .variant-row {
+        /* ── VARIANTS ────────────────────────────────────── */
+        .variant-header {
             display: grid;
-            grid-template-columns: 1fr 1fr 90px 90px auto;
+            grid-template-columns: 1fr 1fr 100px 90px 36px;
             gap: 8px;
-            align-items: end;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
         }
 
-        .variant-row input, .variant-row select {
-            padding: 8px 10px;
-            font-size: 13px;
+        .variant-header span {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--ink-muted);
+            text-transform: uppercase;
+            letter-spacing: .06em;
         }
 
         .remove-variant {
             background: none;
             border: 1px solid var(--border);
             border-radius: 8px;
-            color: var(--danger);
+            color: #c0392b;
             width: 36px;
-            height: 36px;
+            height: 38px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: background .15s;
+            flex-shrink: 0;
         }
 
-        .remove-variant:hover { background: var(--danger); color: #fff; }
+        .remove-variant:hover { background: #c0392b; color: #fff; border-color: #c0392b; }
 
-        /* TOAST */
-        .toast {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 14px 20px;
-            font-size: 14px;
-            font-weight: 500;
-            z-index: 999;
-            transform: translateY(80px);
-            opacity: 0;
-            transition: all 0.3s cubic-bezier(.175,.885,.32,1.275);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .toast.show { transform: translateY(0); opacity: 1; }
-        .toast.success { border-color: var(--success); color: var(--success); }
-        .toast.error { border-color: var(--danger); color: var(--danger); }
-
-        /* SECTION VIEWS */
+        /* ── SECTION VISIBILITY ──────────────────────────── */
         .section { display: none; }
         .section.active { display: block; }
 
-        /* SEARCH */
-        .search-bar {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 0;
-        }
-
-        .search-bar input {
-            max-width: 260px;
-        }
-
-        /* IMG PREVIEW */
-        .img-preview {
-            width: 48px;
-            height: 48px;
-            border-radius: 8px;
+        /* ── IMG ─────────────────────────────────────────── */
+        .img-thumb {
+            width: 46px;
+            height: 46px;
+            border-radius: 10px;
             object-fit: cover;
-            background: var(--surface2);
             border: 1px solid var(--border);
         }
 
         .img-placeholder {
-            width: 48px;
-            height: 48px;
-            border-radius: 8px;
-            background: var(--surface2);
+            width: 46px;
+            height: 46px;
+            border-radius: 10px;
+            background: var(--bg-soft);
             border: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--text-muted);
             font-size: 20px;
         }
 
-        .actions { display: flex; gap: 6px; }
+        /* ── TOAST ───────────────────────────────────────── */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 9999;
+            transform: translateY(80px);
+            opacity: 0;
+            transition: all .3s cubic-bezier(.175,.885,.32,1.275);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: var(--shadow-lg);
+            max-width: 340px;
+        }
+
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { border-left: 4px solid var(--teal); color: var(--teal-dark); }
+        .toast.error   { border-left: 4px solid #c0392b;    color: #c0392b; }
+
+        /* ── EMPTY STATE ─────────────────────────────────── */
+        .empty-cell {
+            text-align: center;
+            color: var(--ink-muted);
+            padding: 40px 20px !important;
+            font-size: 14px;
+        }
 
         @media (max-width: 1100px) { .stats { grid-template-columns: repeat(2,1fr); } }
     </style>
 </head>
 <body>
 
-<!-- SIDEBAR -->
+<!-- ─── SIDEBAR ────────────────────────────────────────── -->
 <aside class="sidebar">
-    <div class="logo">
-        <span>ARVA</span>
-        <small>admin panel</small>
+    <div class="sidebar-brand">
+        <img src="/bildites/Logo_Arva.png" alt="ARVA" />
     </div>
 
+    <span class="sidebar-label">Pārvaldība</span>
+
     <nav>
-        <a class="nav-item active" onclick="showSection('products')" href="#">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+        <a class="nav-item active" data-section="products" onclick="showSection('products',this)" href="#">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
+                <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
+            </svg>
             Produkti
         </a>
-        <a class="nav-item" onclick="showSection('orders')" href="#">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+        <a class="nav-item" data-section="orders" onclick="showSection('orders',this)" href="#">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+                <rect x="9" y="3" width="6" height="4" rx="1"/>
+            </svg>
             Pasūtījumi
         </a>
-        <a class="nav-item" onclick="showSection('users')" href="#">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        <a class="nav-item" data-section="users" onclick="showSection('users',this)" href="#">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+            </svg>
             Lietotāji
         </a>
     </nav>
 
     <div class="sidebar-footer">
         <a href="/">
-            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                <polyline points="9,22 9,12 15,12 15,22"/>
+            </svg>
             Uz mājas lapu
         </a>
     </div>
 </aside>
 
-<!-- MAIN CONTENT -->
+<!-- ─── MAIN ────────────────────────────────────────────── -->
 <main class="main">
     <div class="topbar">
         <div class="page-title" id="pageTitle">Produkti</div>
@@ -491,15 +621,22 @@
         </div>
     </div>
 
-    <!-- PRODUCTS SECTION -->
+    <!-- PRODUCTS -->
     <div class="section active" id="section-products">
         <div class="panel">
             <div class="panel-header">
                 <div class="panel-title">Visi produkti</div>
                 <div style="display:flex;gap:10px;align-items:center;">
-                    <input type="text" placeholder="Meklēt..." id="productSearch" style="max-width:200px;" oninput="filterProducts()" />
-                    <button class="btn btn-primary" onclick="openProductModal()">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    <div class="search-wrap">
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+                        </svg>
+                        <input type="text" id="productSearch" placeholder="Meklēt produktu..." style="max-width:210px;" oninput="filterProducts()" />
+                    </div>
+                    <button class="btn btn-teal" onclick="openProductModal()">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
                         Jauns produkts
                     </button>
                 </div>
@@ -510,19 +647,20 @@
                         <th>Attēls</th>
                         <th>Nosaukums</th>
                         <th>Kategorija</th>
+                        <th>Dzimums</th>
                         <th>Cena</th>
                         <th>Varianti</th>
                         <th>Darbības</th>
                     </tr>
                 </thead>
                 <tbody id="productsTable">
-                    <tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">Ielādē...</td></tr>
+                    <tr><td colspan="7" class="empty-cell">Ielādē...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- ORDERS SECTION -->
+    <!-- ORDERS -->
     <div class="section" id="section-orders">
         <div class="panel">
             <div class="panel-header">
@@ -539,13 +677,13 @@
                     </tr>
                 </thead>
                 <tbody id="ordersTable">
-                    <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px;">Ielādē...</td></tr>
+                    <tr><td colspan="5" class="empty-cell">Ielādē...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- USERS SECTION -->
+    <!-- USERS -->
     <div class="section" id="section-users">
         <div class="panel">
             <div class="panel-header">
@@ -557,206 +695,241 @@
                         <th>#</th>
                         <th>Vārds</th>
                         <th>E-pasts</th>
+                        <th>Admins</th>
                         <th>Reģistrācija</th>
                         <th>Pasūtījumi</th>
                     </tr>
                 </thead>
                 <tbody id="usersTable">
-                    <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px;">Ielādē...</td></tr>
+                    <tr><td colspan="6" class="empty-cell">Ielādē...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 </main>
 
-<!-- PRODUCT MODAL -->
-<div class="modal-overlay" id="productModal">
+<!-- ─── PRODUCT MODAL ───────────────────────────────────── -->
+<div class="modal-overlay" id="productModal" onclick="handleOverlayClick(event)">
     <div class="modal">
-        <div class="modal-title">
-            <span id="modalTitle">Jauns produkts</span>
+        <div class="modal-head">
+            <h3 id="modalTitle">Jauns produkts</h3>
             <button class="modal-close" onclick="closeProductModal()">✕</button>
         </div>
 
-        <div class="tab-bar">
-            <div class="tab active" onclick="switchTab('info')">Informācija</div>
-            <div class="tab" onclick="switchTab('variants')" id="variantsTabBtn">Varianti</div>
-        </div>
-
-        <!-- INFO TAB -->
-        <div class="tab-content active" id="tab-info">
-            <div class="form-group">
-                <label>Nosaukums</label>
-                <input type="text" id="prodName" placeholder="Piem. Men Jeans 1" />
+        <div class="modal-body">
+            <div class="tab-bar">
+                <div class="tab active" onclick="switchTab('info', this)">Informācija</div>
+                <div class="tab" onclick="switchTab('variants', this)">Varianti</div>
             </div>
-            <div class="form-row">
+
+            <!-- INFO -->
+            <div class="tab-pane active" id="tab-info">
                 <div class="form-group">
-                    <label>Cena (€)</label>
-                    <input type="number" id="prodPrice" placeholder="39.99" step="0.01" min="0" />
+                    <label class="form-label">Nosaukums</label>
+                    <input type="text" id="prodName" placeholder="Piem. Men Linen Shirt" />
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Cena (€)</label>
+                        <input type="number" id="prodPrice" placeholder="39.99" step="0.01" min="0" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Kategorija</label>
+                        <select id="prodCategory">
+                            <option value="tshirt">T-krekls</option>
+                            <option value="jeans">Džinsi</option>
+                            <option value="jacket">Jaka</option>
+                            <option value="hat">Cepure</option>
+                            <option value="shoes">Apavi</option>
+                            <option value="other">Cits</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label>Kategorija</label>
-                    <select id="prodCategory">
-                        <option value="tshirt">T-krekls</option>
-                        <option value="jeans">Džinsi</option>
-                        <option value="jacket">Jaka</option>
-                        <option value="hat">Cepure</option>
-                        <option value="shoes">Apavi</option>
-                        <option value="other">Cits</option>
+                    <label class="form-label">Dzimums</label>
+                    <select id="prodGender">
+                        <option value="men">Vīrieši</option>
+                        <option value="women">Sievietes</option>
+                        <option value="unisex">Unisex (abi)</option>
                     </select>
                 </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Attēls — vīrieši (URL)</label>
+                        <input type="text" id="prodImageMen" placeholder="https://..." />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Attēls — sievietes (URL)</label>
+                        <input type="text" id="prodImageWomen" placeholder="https://..." />
+                    </div>
+                </div>
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Attēls (vīrieši) — URL</label>
-                    <input type="text" id="prodImageMen" placeholder="https://..." />
+
+            <!-- VARIANTS -->
+            <div class="tab-pane" id="tab-variants">
+                <div class="variant-header">
+                    <span>Krāsa</span>
+                    <span>Izmērs</span>
+                    <span>Cena (€)</span>
+                    <span>Stock</span>
+                    <span></span>
                 </div>
-                <div class="form-group">
-                    <label>Attēls (sievietes) — URL</label>
-                    <input type="text" id="prodImageWomen" placeholder="https://..." />
-                </div>
+                <div id="variantsList"></div>
+                <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:10px;" onclick="addVariantRow()">
+                    + Pievienot variantu
+                </button>
             </div>
         </div>
 
-        <!-- VARIANTS TAB -->
-        <div class="tab-content" id="tab-variants">
-            <div id="variantsList"></div>
-            <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:8px;" onclick="addVariantRow()">
-                + Pievienot variantu
-            </button>
-        </div>
-
-        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
+        <div class="modal-footer">
             <button class="btn btn-ghost" onclick="closeProductModal()">Atcelt</button>
             <button class="btn btn-primary" onclick="saveProduct()">Saglabāt</button>
         </div>
     </div>
 </div>
 
-<!-- TOAST -->
+<!-- ─── TOAST ───────────────────────────────────────────── -->
 <div class="toast" id="toast"></div>
 
 <script>
-    const CSRF = document.querySelector('meta[name="csrf-token"]').content;
-    let editingProductId = null;
-    let allProducts = [];
+const CSRF = document.querySelector('meta[name="csrf-token"]').content;
+let editingProductId = null;
+let allProducts = [];
 
-    // ─── NAVIGATION ───────────────────────────────────────
-    function showSection(name) {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById('section-' + name).classList.add('active');
-        document.querySelectorAll('.nav-item')[['products','orders','users'].indexOf(name)].classList.add('active');
+// ─── NAVIGATION ────────────────────────────────────────
+function showSection(name, el) {
+    event.preventDefault();
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('section-' + name).classList.add('active');
+    el.classList.add('active');
 
-        const titles = { products: 'Produkti', orders: 'Pasūtījumi', users: 'Lietotāji' };
-        document.getElementById('pageTitle').textContent = titles[name];
+    const titles = { products: 'Produkti', orders: 'Pasūtījumi', users: 'Lietotāji' };
+    document.getElementById('pageTitle').textContent = titles[name];
 
-        if (name === 'orders') loadOrders();
-        if (name === 'users') loadUsers();
-    }
+    if (name === 'orders') loadOrders();
+    if (name === 'users')  loadUsers();
+}
 
-    // ─── TABS ─────────────────────────────────────────────
-    function switchTab(name) {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        document.getElementById('tab-' + name).classList.add('active');
-        event.target.classList.add('active');
-    }
+// ─── TABS ───────────────────────────────────────────────
+function switchTab(name, el) {
+    const modal = el.closest('.modal-body, .modal');
+    modal.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    modal.querySelectorAll('.tab-pane').forEach(t => t.classList.remove('active'));
+    modal.querySelector('#tab-' + name).classList.add('active');
+    el.classList.add('active');
+}
 
-    // ─── TOAST ────────────────────────────────────────────
-    function showToast(msg, type = 'success') {
-        const t = document.getElementById('toast');
-        t.textContent = (type === 'success' ? '✓ ' : '✕ ') + msg;
-        t.className = 'toast show ' + type;
-        setTimeout(() => t.classList.remove('show'), 3000);
-    }
+// ─── TOAST ──────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = (type === 'success' ? '✓  ' : '✕  ') + msg;
+    t.className = 'toast show ' + type;
+    setTimeout(() => t.classList.remove('show'), 3200);
+}
 
-    // ─── LOAD STATS ───────────────────────────────────────
-    async function loadStats() {
-        try {
-            const r = await fetch('/admin/api/stats');
-            const d = await r.json();
-            document.getElementById('statProducts').textContent = d.products ?? '—';
-            document.getElementById('statVariants').textContent = d.variants ?? '—';
-            document.getElementById('statOrders').textContent = d.orders ?? '—';
-            document.getElementById('statUsers').textContent = d.users ?? '—';
-        } catch(e) {}
-    }
+// ─── STATS ──────────────────────────────────────────────
+async function loadStats() {
+    try {
+        const r = await fetch('/admin/api/stats');
+        if (!r.ok) return;
+        const d = await r.json();
+        document.getElementById('statProducts').textContent = d.products ?? '—';
+        document.getElementById('statVariants').textContent = d.variants ?? '—';
+        document.getElementById('statOrders').textContent   = d.orders   ?? '—';
+        document.getElementById('statUsers').textContent    = d.users    ?? '—';
+    } catch(e) {}
+}
 
-    // ─── PRODUCTS ─────────────────────────────────────────
-    async function loadProducts() {
+// ─── PRODUCTS ───────────────────────────────────────────
+async function loadProducts() {
+    try {
         const r = await fetch('/admin/api/products');
+        if (!r.ok) throw new Error();
         allProducts = await r.json();
         renderProducts(allProducts);
+    } catch(e) {
+        document.getElementById('productsTable').innerHTML =
+            '<tr><td colspan="7" class="empty-cell">Neizdevās ielādēt produktus.</td></tr>';
     }
+}
 
-    function renderProducts(products) {
-        const tbody = document.getElementById('productsTable');
-        if (!products.length) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">Nav produktu</td></tr>';
-            return;
-        }
-        tbody.innerHTML = products.map(p => `
-            <tr>
-                <td>
-                    ${p.image_men
-                        ? `<img src="${p.image_men}" class="img-preview" />`
-                        : `<div class="img-placeholder">👕</div>`}
-                </td>
-                <td><strong>${p.name}</strong></td>
-                <td>${p.category}</td>
-                <td>€${Number(p.price).toFixed(2)}</td>
-                <td><span class="badge badge-active">${p.variants_count ?? 0} varianti</span></td>
-                <td>
-                    <div class="actions">
-                        <button class="btn btn-ghost btn-sm" onclick="openEditModal(${p.id})">Rediģēt</button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">Dzēst</button>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
+function renderProducts(products) {
+    const tbody = document.getElementById('productsTable');
+    if (!products.length) {
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-cell">Nav produktu</td></tr>';
+        return;
     }
+    tbody.innerHTML = products.map(p => `
+        <tr>
+            <td>
+                ${p.image_men
+                    ? `<img src="${p.image_men}" class="img-thumb" />`
+                    : `<div class="img-placeholder">👕</div>`}
+            </td>
+            <td><strong>${escHtml(p.name)}</strong></td>
+            <td><span class="badge badge-purple">${escHtml(p.category)}</span></td>
+            <td>${{men:'<span class="badge badge-teal">Vīrieši</span>',women:'<span class="badge" style="background:rgba(222,115,136,.12);color:#97276b">Sievietes</span>',unisex:'<span class="badge" style="background:var(--bg-soft);color:var(--ink-soft)">Unisex</span>'}[p.gender] ?? escHtml(p.gender ?? '')}</td>
+            <td>€${Number(p.price).toFixed(2)}</td>
+            <td><span class="badge badge-teal">${p.variants_count ?? 0} varianti</span></td>
+            <td>
+                <div class="actions">
+                    <button class="btn btn-ghost btn-sm" onclick="openEditModal(${p.id})">Rediģēt</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">Dzēst</button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
 
-    function filterProducts() {
-        const q = document.getElementById('productSearch').value.toLowerCase();
-        renderProducts(allProducts.filter(p =>
-            p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q)
-        ));
-    }
+function filterProducts() {
+    const q = document.getElementById('productSearch').value.toLowerCase();
+    renderProducts(allProducts.filter(p =>
+        p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q)
+    ));
+}
 
-    // ─── PRODUCT MODAL ────────────────────────────────────
-    function openProductModal() {
-        editingProductId = null;
-        document.getElementById('modalTitle').textContent = 'Jauns produkts';
-        document.getElementById('prodName').value = '';
-        document.getElementById('prodPrice').value = '';
-        document.getElementById('prodCategory').value = 'tshirt';
-        document.getElementById('prodImageMen').value = '';
-        document.getElementById('prodImageWomen').value = '';
-        document.getElementById('variantsList').innerHTML = '';
-        addVariantRow();
-        document.getElementById('productModal').classList.add('open');
+// ─── PRODUCT MODAL ──────────────────────────────────────
+function resetModal() {
+    document.querySelectorAll('#productModal .tab').forEach((t,i) => {
+        t.classList.toggle('active', i === 0);
+    });
+    document.querySelectorAll('#productModal .tab-pane').forEach((p,i) => {
+        p.classList.toggle('active', i === 0);
+    });
+}
 
-        // reset tabs
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab')[0].classList.add('active');
-        document.getElementById('tab-info').classList.add('active');
-    }
+function openProductModal() {
+    editingProductId = null;
+    document.getElementById('modalTitle').textContent = 'Jauns produkts';
+    document.getElementById('prodName').value       = '';
+    document.getElementById('prodPrice').value      = '';
+    document.getElementById('prodCategory').value   = 'tshirt';
+    document.getElementById('prodGender').value     = 'men';
+    document.getElementById('prodImageMen').value   = '';
+    document.getElementById('prodImageWomen').value = '';
+    document.getElementById('variantsList').innerHTML = '';
+    addVariantRow();
+    resetModal();
+    document.getElementById('productModal').classList.add('open');
+}
 
-    async function openEditModal(id) {
-        editingProductId = id;
-        document.getElementById('modalTitle').textContent = 'Rediģēt produktu';
+async function openEditModal(id) {
+    editingProductId = id;
+    document.getElementById('modalTitle').textContent = 'Rediģēt produktu';
 
+    try {
         const r = await fetch(`/admin/api/products/${id}`);
+        if (!r.ok) throw new Error();
         const p = await r.json();
 
-        document.getElementById('prodName').value = p.name;
-        document.getElementById('prodPrice').value = p.price;
-        document.getElementById('prodCategory').value = p.category;
-        document.getElementById('prodImageMen').value = p.image_men ?? '';
+        document.getElementById('prodName').value       = p.name;
+        document.getElementById('prodPrice').value      = p.price;
+        document.getElementById('prodCategory').value   = p.category;
+        document.getElementById('prodGender').value     = p.gender ?? 'unisex';
+        document.getElementById('prodImageMen').value   = p.image_men   ?? '';
         document.getElementById('prodImageWomen').value = p.image_women ?? '';
 
-        // load variants
         const vl = document.getElementById('variantsList');
         vl.innerHTML = '';
         if (p.variants && p.variants.length) {
@@ -765,69 +938,74 @@
             addVariantRow();
         }
 
+        resetModal();
         document.getElementById('productModal').classList.add('open');
-
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab')[0].classList.add('active');
-        document.getElementById('tab-info').classList.add('active');
+    } catch(e) {
+        showToast('Neizdevās ielādēt produktu!', 'error');
     }
+}
 
-    function closeProductModal() {
-        document.getElementById('productModal').classList.remove('open');
-    }
+function closeProductModal() {
+    document.getElementById('productModal').classList.remove('open');
+}
 
-    async function saveProduct() {
-        const name = document.getElementById('prodName').value.trim();
-        const price = document.getElementById('prodPrice').value;
-        const category = document.getElementById('prodCategory').value;
-        const image_men = document.getElementById('prodImageMen').value.trim() || null;
-        const image_women = document.getElementById('prodImageWomen').value.trim() || null;
+function handleOverlayClick(e) {
+    if (e.target === document.getElementById('productModal')) closeProductModal();
+}
 
-        if (!name || !price) { showToast('Aizpildi nosaukumu un cenu!', 'error'); return; }
+async function saveProduct() {
+    const name     = document.getElementById('prodName').value.trim();
+    const price    = document.getElementById('prodPrice').value;
+    const category = document.getElementById('prodCategory').value;
+    const gender   = document.getElementById('prodGender').value;
+    const image_men   = document.getElementById('prodImageMen').value.trim()   || null;
+    const image_women = document.getElementById('prodImageWomen').value.trim() || null;
 
-        // collect variants
-        const variants = [];
-        document.querySelectorAll('.variant-entry').forEach(row => {
-            const color = row.querySelector('.v-color').value.trim();
-            const size = row.querySelector('.v-size').value.trim();
-            const vprice = row.querySelector('.v-price').value;
-            const stock = row.querySelector('.v-stock').value;
-            const vid = row.dataset.vid;
-            if (color && size) {
-                variants.push({ id: vid || null, color, size, price: vprice || null, stock: stock || 0 });
-            }
-        });
+    if (!name)  { showToast('Ievadi nosaukumu!', 'error'); return; }
+    if (!price) { showToast('Ievadi cenu!', 'error'); return; }
 
-        const payload = { name, price, category, image_men, image_women, variants };
-        const url = editingProductId ? `/admin/api/products/${editingProductId}` : '/admin/api/products';
-        const method = editingProductId ? 'PUT' : 'POST';
-
-        try {
-            const r = await fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
-                body: JSON.stringify(payload)
-            });
-            if (r.ok) {
-                showToast(editingProductId ? 'Produkts atjaunināts!' : 'Produkts izveidots!');
-                closeProductModal();
-                loadProducts();
-                loadStats();
-            } else {
-                const err = await r.json();
-                showToast(err.message ?? 'Kļūda!', 'error');
-            }
-        } catch(e) {
-            showToast('Savienojuma kļūda!', 'error');
+    const variants = [];
+    document.querySelectorAll('#variantsList .variant-entry').forEach(row => {
+        const color = row.querySelector('.v-color').value.trim();
+        const size  = row.querySelector('.v-size').value.trim();
+        const vprice = row.querySelector('.v-price').value;
+        const stock  = row.querySelector('.v-stock').value;
+        const vid    = row.dataset.vid;
+        if (color && size) {
+            variants.push({ id: vid || null, color, size, price: vprice || null, stock: stock || 0 });
         }
-    }
+    });
 
-    async function deleteProduct(id) {
-        if (!confirm('Dzēst šo produktu?')) return;
+    const payload = { name, price, category, gender, image_men, image_women, variants };
+    const url    = editingProductId ? `/admin/api/products/${editingProductId}` : '/admin/api/products';
+    const method = editingProductId ? 'PUT' : 'POST';
+
+    try {
+        const r = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
+            body: JSON.stringify(payload),
+        });
+        if (r.ok) {
+            showToast(editingProductId ? 'Produkts atjaunināts!' : 'Produkts izveidots!');
+            closeProductModal();
+            loadProducts();
+            loadStats();
+        } else {
+            const err = await r.json().catch(() => ({}));
+            showToast(err.message ?? 'Saglabāšanas kļūda!', 'error');
+        }
+    } catch(e) {
+        showToast('Savienojuma kļūda!', 'error');
+    }
+}
+
+async function deleteProduct(id) {
+    if (!confirm('Dzēst šo produktu un visus tā variantus?')) return;
+    try {
         const r = await fetch(`/admin/api/products/${id}`, {
             method: 'DELETE',
-            headers: { 'X-CSRF-TOKEN': CSRF }
+            headers: { 'X-CSRF-TOKEN': CSRF },
         });
         if (r.ok) {
             showToast('Produkts dzēsts!');
@@ -836,89 +1014,95 @@
         } else {
             showToast('Kļūda dzēšot!', 'error');
         }
+    } catch(e) {
+        showToast('Savienojuma kļūda!', 'error');
     }
+}
 
-    // ─── VARIANTS ─────────────────────────────────────────
-    let variantCounter = 0;
-    function addVariantRow(v = null) {
-        variantCounter++;
-        const id = variantCounter;
-        const div = document.createElement('div');
-        div.className = 'variant-entry';
-        div.dataset.vid = v?.id ?? '';
-        div.innerHTML = `
-            <div style="display:grid;grid-template-columns:1fr 1fr 90px 90px 36px;gap:8px;align-items:end;margin-bottom:10px;">
-                <div>
-                    ${id === 1 ? '<label>Krāsa</label>' : ''}
-                    <input class="v-color" type="text" placeholder="Black" value="${v?.color ?? ''}" />
-                </div>
-                <div>
-                    ${id === 1 ? '<label>Izmērs</label>' : ''}
-                    <input class="v-size" type="text" placeholder="M" value="${v?.size ?? ''}" />
-                </div>
-                <div>
-                    ${id === 1 ? '<label>Cena (€)</label>' : ''}
-                    <input class="v-price" type="number" placeholder="—" step="0.01" min="0" value="${v?.price ?? ''}" />
-                </div>
-                <div>
-                    ${id === 1 ? '<label>Stock</label>' : ''}
-                    <input class="v-stock" type="number" placeholder="0" min="0" value="${v?.stock ?? 0}" />
-                </div>
-                <div style="padding-top:${id === 1 ? '22' : '0'}px">
-                    <button class="remove-variant" onclick="this.closest('.variant-entry').remove()">✕</button>
-                </div>
-            </div>
-        `;
-        document.getElementById('variantsList').appendChild(div);
+// ─── VARIANTS ───────────────────────────────────────────
+function addVariantRow(v = null) {
+    const div = document.createElement('div');
+    div.className = 'variant-entry';
+    div.dataset.vid = v?.id ?? '';
+    div.innerHTML = `
+        <div class="form-row-4">
+            <input class="v-color" type="text" placeholder="Black" value="${escHtml(v?.color ?? '')}" />
+            <input class="v-size"  type="text" placeholder="M"     value="${escHtml(v?.size  ?? '')}" />
+            <input class="v-price" type="number" placeholder="—" step="0.01" min="0" value="${v?.price ?? ''}" />
+            <input class="v-stock" type="number" placeholder="0"  min="0"           value="${v?.stock ?? 0}" />
+            <button class="remove-variant" type="button" onclick="this.closest('.variant-entry').remove()" title="Dzēst">✕</button>
+        </div>
+    `;
+    document.getElementById('variantsList').appendChild(div);
+}
+
+// ─── ORDERS ─────────────────────────────────────────────
+async function loadOrders() {
+    const tbody = document.getElementById('ordersTable');
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-cell">Ielādē...</td></tr>';
+    try {
+        const r = await fetch('/admin/api/orders');
+        if (!r.ok) throw new Error();
+        const orders = await r.json();
+        if (!orders.length) {
+            tbody.innerHTML = '<tr><td colspan="5" class="empty-cell">Nav pasūtījumu</td></tr>';
+            return;
+        }
+        tbody.innerHTML = orders.map(o => `
+            <tr>
+                <td><strong style="color:var(--teal-dark)">#${o.id}</strong></td>
+                <td>${escHtml(o.user?.name ?? '—')}</td>
+                <td><strong>€${Number(o.total ?? 0).toFixed(2)}</strong></td>
+                <td><span class="badge badge-green">${escHtml(o.status ?? 'jauns')}</span></td>
+                <td style="color:var(--ink-soft);font-size:13px;">${new Date(o.created_at).toLocaleDateString('lv-LV')}</td>
+            </tr>
+        `).join('');
+    } catch(e) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-cell">Neizdevās ielādēt pasūtījumus.</td></tr>';
     }
+}
 
-    // ─── ORDERS ───────────────────────────────────────────
-    async function loadOrders() {
-        try {
-            const r = await fetch('/admin/api/orders');
-            const orders = await r.json();
-            const tbody = document.getElementById('ordersTable');
-            if (!orders.length) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px;">Nav pasūtījumu</td></tr>';
-                return;
-            }
-            tbody.innerHTML = orders.map(o => `
-                <tr>
-                    <td><code style="font-family:DM Mono,monospace;color:var(--accent)">#${o.id}</code></td>
-                    <td>${o.user?.name ?? '—'}</td>
-                    <td>€${Number(o.total ?? 0).toFixed(2)}</td>
-                    <td><span class="badge badge-active">${o.status ?? 'jauns'}</span></td>
-                    <td style="color:var(--text-muted);font-size:13px;">${new Date(o.created_at).toLocaleDateString('lv')}</td>
-                </tr>
-            `).join('');
-        } catch(e) {}
+// ─── USERS ──────────────────────────────────────────────
+async function loadUsers() {
+    const tbody = document.getElementById('usersTable');
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-cell">Ielādē...</td></tr>';
+    try {
+        const r = await fetch('/admin/api/users');
+        if (!r.ok) throw new Error();
+        const users = await r.json();
+        if (!users.length) {
+            tbody.innerHTML = '<tr><td colspan="6" class="empty-cell">Nav lietotāju</td></tr>';
+            return;
+        }
+        tbody.innerHTML = users.map((u, i) => `
+            <tr>
+                <td style="color:var(--ink-muted)">${i + 1}</td>
+                <td><strong>${escHtml(u.name)}</strong></td>
+                <td style="color:var(--ink-soft)">${escHtml(u.email)}</td>
+                <td>${u.is_admin
+                    ? '<span class="badge badge-purple">Admins</span>'
+                    : '<span class="badge" style="background:var(--bg-soft);color:var(--ink-muted)">Lietotājs</span>'}</td>
+                <td style="color:var(--ink-soft);font-size:13px;">${new Date(u.created_at).toLocaleDateString('lv-LV')}</td>
+                <td><span class="badge badge-teal">${u.orders_count ?? 0}</span></td>
+            </tr>
+        `).join('');
+    } catch(e) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-cell">Neizdevās ielādēt lietotājus.</td></tr>';
     }
+}
 
-    // ─── USERS ────────────────────────────────────────────
-    async function loadUsers() {
-        try {
-            const r = await fetch('/admin/api/users');
-            const users = await r.json();
-            const tbody = document.getElementById('usersTable');
-            if (!users.length) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px;">Nav lietotāju</td></tr>';
-                return;
-            }
-            tbody.innerHTML = users.map((u, i) => `
-                <tr>
-                    <td style="color:var(--text-muted)">${i+1}</td>
-                    <td>${u.name}</td>
-                    <td style="color:var(--text-muted)">${u.email}</td>
-                    <td style="color:var(--text-muted);font-size:13px;">${new Date(u.created_at).toLocaleDateString('lv')}</td>
-                    <td>${u.orders_count ?? 0}</td>
-                </tr>
-            `).join('');
-        } catch(e) {}
-    }
+// ─── HELPERS ────────────────────────────────────────────
+function escHtml(str) {
+    return String(str ?? '')
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;');
+}
 
-    // ─── INIT ─────────────────────────────────────────────
-    loadStats();
-    loadProducts();
+// ─── INIT ───────────────────────────────────────────────
+loadStats();
+loadProducts();
 </script>
 
 </body>

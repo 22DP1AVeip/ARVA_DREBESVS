@@ -64,6 +64,14 @@ function statusBadgeClass(s: string) {
               Favorīti
             </Link>
 
+            <Link href="/profile/designs" class="menu-item" :class="{ active: section === 'designs' }">
+              🎨 Mani dizaini
+            </Link>
+
+            <Link href="/profile/coupons" class="menu-item" :class="{ active: section === 'coupons' }">
+              🎟️ Kuponi &amp; punkti
+            </Link>
+
             <Link href="/profile/settings" class="menu-item" :class="{ active: section === 'settings' }">
               Iestatījumi
             </Link>

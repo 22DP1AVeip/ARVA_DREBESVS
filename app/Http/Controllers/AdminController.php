@@ -41,12 +41,14 @@ class AdminController extends Controller
             'name'     => 'required|string|max:255',
             'price'    => 'required|numeric|min:0',
             'category' => 'required|string',
+            'gender'   => 'required|in:men,women,unisex',
         ]);
 
         $product = Product::create([
             'name'         => $request->name,
             'price'        => $request->price,
             'category'     => $request->category,
+            'gender'       => $request->gender,
             'image_men'    => $request->image_men,
             'image_women'  => $request->image_women,
         ]);
@@ -64,12 +66,14 @@ class AdminController extends Controller
             'name'     => 'required|string|max:255',
             'price'    => 'required|numeric|min:0',
             'category' => 'required|string',
+            'gender'   => 'required|in:men,women,unisex',
         ]);
 
         $product->update([
             'name'        => $request->name,
             'price'       => $request->price,
             'category'    => $request->category,
+            'gender'      => $request->gender,
             'image_men'   => $request->image_men,
             'image_women' => $request->image_women,
         ]);

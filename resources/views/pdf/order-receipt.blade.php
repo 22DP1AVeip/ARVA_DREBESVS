@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: DejaVu Sans, Arial, sans-serif; color: #072536; padding: 40px; font-size: 13px; background: #fff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'DejaVu Sans', sans-serif; }
+        body { font-family: 'DejaVu Sans', sans-serif; color: #072536; padding: 40px; font-size: 13px; background: #fff; }
 
         .header {
             display: flex;
@@ -150,7 +150,7 @@
 
     <div class="header">
         <div class="logo">
-            <img src="{{ public_path('bildites/Logo_Arva.png') }}" alt="ARVA" />
+            <img src="{{ public_path('bildites/Logo_Arva.png') }}" alt="ARVA" style="height:55px;width:auto;" />
         </div>
         <div class="receipt-info">
             <div class="receipt-title">Pasūtījuma kvīts</div>
