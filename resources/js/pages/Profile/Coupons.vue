@@ -56,7 +56,6 @@ function copyCode(code: string) {
           class="coupon-card"
           :style="{ background: tierMeta[c.tier]?.bg ?? '#f7fbfc', borderColor: tierMeta[c.tier]?.border ?? '#ddd' }"
         >
-          <div class="coupon-emoji">{{ tierMeta[c.tier]?.emoji ?? "🎟️" }}</div>
           <div class="coupon-name" :style="{ color: tierMeta[c.tier]?.color ?? '#072536' }">{{ c.name }}</div>
           <div class="coupon-discount">{{ c.discount_percent }}% atlaide</div>
           <div class="coupon-cost">{{ c.points_required.toLocaleString("lv-LV") }} pts</div>
@@ -95,15 +94,14 @@ function copyCode(code: string) {
       <div v-else class="my-coupons">
         <div v-for="uc in myCoupons" :key="uc.id" class="my-coupon" :class="{ used: uc.is_used }">
           <div class="my-coupon-left">
-            <div class="my-coupon-emoji">{{ tierMeta[uc.tier]?.emoji ?? "🎟️" }}</div>
-            <div>
+              <div>
               <div class="my-coupon-name">{{ uc.name }}</div>
               <div class="my-coupon-discount">{{ uc.discount_percent }}% atlaide</div>
             </div>
           </div>
           <div class="my-coupon-right">
             <div class="my-coupon-code" @click="copyCode(uc.code)" title="Noklikšķini, lai kopētu">
-              {{ uc.code }} <span class="copy-hint">📋</span>
+              {{ uc.code }}
             </div>
             <div v-if="uc.is_used" class="used-badge">Izmantots {{ uc.used_at }}</div>
             <div v-else class="active-badge">Aktīvs</div>

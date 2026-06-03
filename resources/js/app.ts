@@ -5,8 +5,9 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
-import { createPinia } from 'pinia';  // <-- Import Pinia here
+import { createPinia } from 'pinia';
 import { initializeTheme } from './composables/useAppearance';
+import ChatWidget from './components/ChatWidget.vue';
 
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
@@ -27,13 +28,15 @@ createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name) => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob<DefineComponent>('./pages/**/*.vue')),
     setup({ el, App, props, plugin }) {
-        const app = createApp({ render: () => h(App, props) });
+        const app = createApp({
+            render: () => h('div', [h(App, props), h(ChatWidget)])
+        });
 
-        const pinia = createPinia();   // <-- Create Pinia instance
+        const pinia = createPinia();
 
         app.use(plugin)
            .use(ZiggyVue)
-           .use(pinia)               // <-- Use Pinia here
+           .use(pinia)
            .mount(el);
     },
     progress: {

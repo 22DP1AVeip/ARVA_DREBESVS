@@ -149,6 +149,33 @@ class AdminController extends Controller
         }
     }
 
+    // ─── UPDATE ORDER STATUS ─────────────────────────────
+    public function updateOrderStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:processing,shipped,delivered,cancelled',
+        ]);
+
+        $order = Order::findOrFail($id);
+        $order->update(['status' => $request->status]);
+
+        return response()->json(['ok' => true, 'status' => $order->status]);
+    }
+
+    // ─── UPDATE USER ROLE ────────────────────────────────
+    public function updateUserRole(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        if ($user->id === auth()->id()) {
+            return response()->json(['error' => 'Nevar mainīt savu lomu.'], 403);
+        }
+
+        $user->update(['is_admin' => !$user->is_admin]);
+
+        return response()->json(['ok' => true, 'is_admin' => $user->is_admin]);
+    }
+
     // ─── USERS ───────────────────────────────────────────
     public function users()
     {

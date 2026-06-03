@@ -13,12 +13,27 @@ use App\Models\UserCoupon;
 use App\Mail\OrderConfirmation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Stripe\Stripe;
+use Stripe\PaymentIntent;
 
 class CheckoutController extends Controller
 {
     public function index(Request $request)
     {
-        return Inertia::render('CheckoutView');
+        $user      = $request->user();
+        $lastOrder = $user->orders()->latest()->first();
+
+        return Inertia::render('CheckoutView', [
+            'prefill' => [
+                'full_name' => $lastOrder?->full_name ?? $user->name,
+                'email'     => $lastOrder?->email     ?? $user->email,
+                'phone'     => $lastOrder?->phone     ?? '',
+                'address'   => $lastOrder?->address   ?? '',
+                'city'      => $lastOrder?->city      ?? '',
+                'postcode'  => $lastOrder?->postcode  ?? '',
+                'country'   => $lastOrder?->country   ?? 'Latvija',
+            ],
+        ]);
     }
 
     public function validateCoupon(Request $request)
@@ -42,21 +57,88 @@ class CheckoutController extends Controller
         ]);
     }
 
+    public function createPaymentIntent(Request $request)
+    {
+        $cart = $request->session()->get('cart', []);
+
+        if (empty($cart)) {
+            return response()->json(['error' => 'Grozs ir tukšs.'], 400);
+        }
+
+        $variantIds = array_keys($cart);
+        $variants = ProductVariant::with('product')
+            ->whereIn('id', $variantIds)
+            ->get()
+            ->keyBy('id');
+
+        $total = 0;
+        foreach ($cart as $variantId => $qty) {
+            $variant = $variants->get((int) $variantId);
+            if (!$variant) continue;
+            $price  = (float) ($variant->price ?? $variant->product->price);
+            $total += $price * (int) $qty;
+        }
+
+        // Piemērot atlaidi ja kupons norādīts
+        $couponCode = strtoupper(trim($request->input('coupon_code', '')));
+        if ($couponCode) {
+            $userCoupon = UserCoupon::with('coupon')
+                ->where('code', $couponCode)
+                ->where('user_id', $request->user()->id)
+                ->whereNull('used_at')
+                ->first();
+            if ($userCoupon) {
+                $total = $total * (1 - $userCoupon->coupon->discount_percent / 100);
+            }
+        }
+
+        $amountCents = (int) round($total * 100);
+
+        if ($amountCents < 50) {
+            return response()->json(['error' => 'Summa ir pārāk maza.'], 400);
+        }
+
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        $paymentIntent = PaymentIntent::create([
+            'amount'                    => $amountCents,
+            'currency'                  => 'eur',
+            'automatic_payment_methods' => ['enabled' => true],
+        ]);
+
+        return response()->json(['client_secret' => $paymentIntent->client_secret]);
+    }
+
     public function store(Request $request)
     {
         $data = $request->validate([
-            'full_name'      => ['required', 'string', 'max:120'],
-            'email'          => ['required', 'email', 'max:190'],
-            'phone'          => ['nullable', 'string', 'max:50'],
-            'address'        => ['required', 'string', 'max:190'],
-            'city'           => ['required', 'string', 'max:120'],
-            'postcode'       => ['required', 'string', 'max:30'],
-            'country'        => ['required', 'string', 'max:120'],
-            'payment_method' => ['required', 'in:card,cod'],
-            'coupon_code'    => ['nullable', 'string', 'max:30'],
+            'full_name'         => ['required', 'string', 'max:120'],
+            'email'             => ['required', 'email', 'max:190'],
+            'phone'             => ['nullable', 'string', 'max:50'],
+            'address'           => ['required', 'string', 'max:190'],
+            'city'              => ['required', 'string', 'max:120'],
+            'postcode'          => ['required', 'string', 'max:30'],
+            'country'           => ['required', 'string', 'max:120'],
+            'payment_method'    => ['required', 'in:card,cod'],
+            'coupon_code'       => ['nullable', 'string', 'max:30'],
+            'payment_intent_id' => ['nullable', 'string', 'max:100'],
         ]);
 
-        $cart  = $request->session()->get('cart', []);   // [variantId => qty]
+        // Verificēt Stripe maksājumu kartes gadījumā
+        if ($data['payment_method'] === 'card') {
+            if (empty($data['payment_intent_id'])) {
+                return back()->withErrors(['payment' => 'Maksājums nav veikts.']);
+            }
+
+            Stripe::setApiKey(config('services.stripe.secret'));
+            $pi = PaymentIntent::retrieve($data['payment_intent_id']);
+
+            if ($pi->status !== 'succeeded') {
+                return back()->withErrors(['payment' => 'Maksājums nav apstiprināts.']);
+            }
+        }
+
+        $cart  = $request->session()->get('cart', []);
         $views = $request->session()->get('cart_views', []);
 
         if (empty($cart)) {
@@ -127,14 +209,12 @@ class CheckoutController extends Controller
                 $total += $price * (int) $qty;
             }
 
-            // Piemērot atlaidi
             if ($discountPercent > 0) {
                 $total = $total * (1 - $discountPercent / 100);
             }
 
             $order->update(['total' => round($total, 2)]);
 
-            // Atzīmēt kuponu kā izmantotu
             if ($userCoupon) {
                 $userCoupon->update(['used_at' => now()]);
             }
@@ -144,7 +224,6 @@ class CheckoutController extends Controller
 
         $request->session()->forget(['cart', 'cart_views']);
 
-        // Punktus piešķir tikai ja netika izmantots kupons
         $earned = 0;
         if (!$userCoupon) {
             $earned = (int) floor($order->total);

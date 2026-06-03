@@ -1,10 +1,8 @@
 <script setup lang="ts">
-// handleSubscribe function to prevent errors
 const handleSubscribe = () => {
     alert("Abonēts!");
 };
 </script>
-
 
 <template>
     <footer class="footer">
@@ -39,14 +37,14 @@ const handleSubscribe = () => {
             </div>
         </div>
 
-        <p>&copy; 2024 AVDP. Visas tiesības aizsargātas.</p>
+        <p class="copy">&copy; 2024 AVDP. Visas tiesības aizsargātas.</p>
     </footer>
 </template>
 
 <style scoped>
 .footer {
     background-color: #f9f9f9;
-    padding: 40px 20px;
+    padding: 20px 20px 10px;
     text-align: center;
     border-top: 2px solid #bdc3c7;
     font-family: "Poppins", sans-serif;
@@ -58,107 +56,34 @@ const handleSubscribe = () => {
     justify-content: space-between;
     max-width: 1200px;
     margin: 0 auto;
-    font-family: "Poppins", sans-serif;
 }
 
-.social-media {
-    flex: 1;
-    margin: 0 20px;
-}
+.social-media { flex: 1; margin: 0 20px; }
 
 .social-icons img {
-    width: 40px;
-    margin: 0 15px;
-    transition: transform 0.3s ease, filter 0.3s ease;
+    width: 30px;
+    margin: 0 8px;
+    transition: transform 0.3s ease;
 }
+.social-icons img:hover { transform: scale(1.2); }
 
-.social-icons img:hover {
-    transform: scale(1.2);
-    filter: brightness(1.2);
-}
+.useful-links { flex: 1; margin: 0 20px; text-align: left; }
+.useful-links h3 { font-size: 14px; font-weight: bold; margin-bottom: 8px; }
+.useful-links ul { list-style: none; padding: 0; }
+.useful-links li { margin: 4px 0; }
+.useful-links a { text-decoration: none; color: #333; font-size: 13px; transition: color 0.3s; }
+.useful-links a:hover { color: #e74c3c; }
 
-.useful-links {
-    flex: 1;
-    margin: 0 20px;
-    text-align: left;
-}
-
-.useful-links h3 {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 15px;
-}
-
-.useful-links ul {
-    list-style: none;
-    padding: 0;
-}
-
-.useful-links li {
-    margin: 8px 0;
-}
-
-.useful-links a {
-    text-decoration: none;
-    color: #333;
-    font-size: 14px;
-    transition: color 0.3s ease;
-}
-
-.useful-links a:hover {
-    color: #e74c3c;
-}
-
-.newsletter {
-    flex: 1;
-    margin: 0 20px;
-    text-align: left;
-}
-
-.newsletter h3 {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-.newsletter p {
-    font-size: 14px;
-    margin-bottom: 15px;
-    color: #666;
-}
-
-.newsletter form {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-}
-
-.newsletter input {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    width: 250px;
-    font-size: 14px;
-}
-
+.newsletter { flex: 1; margin: 0 20px; text-align: left; }
+.newsletter h3 { font-size: 14px; font-weight: bold; margin-bottom: 6px; }
+.newsletter p { font-size: 13px; margin-bottom: 8px; color: #666; }
+.newsletter form { display: flex; gap: 8px; }
+.newsletter input { padding: 8px; border: 1px solid #ddd; border-radius: 5px; width: 200px; font-size: 13px; }
 .newsletter button {
-    padding: 10px 15px;
-    border: none;
-    background-color: #e74c3c;
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
+    padding: 8px 12px; border: none; background-color: #e74c3c;
+    color: white; border-radius: 5px; cursor: pointer; font-size: 13px;
 }
+.newsletter button:hover { background-color: #c0392b; }
 
-.newsletter button:hover {
-    background-color: #c0392b;
-}
-
-p {
-    font-size: 14px;
-    margin-top: 20px;
-    color: #777;
-}
+.copy { font-size: 12px; margin-top: 10px; color: #777; }
 </style>

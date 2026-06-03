@@ -94,7 +94,7 @@ function clearCart() {
 </template>
 
 <style scoped>
-.wrap{max-width:1100px;margin:0 auto;padding:24px;}
+.wrap{max-width:1100px;margin:0 auto;padding:24px;flex:1;}
 .title{font-size:26px;font-weight:800;margin-bottom:18px;}
 .empty{padding:24px;border:1px solid #eee;border-radius:12px;}
 .mt{margin-top:10px;}

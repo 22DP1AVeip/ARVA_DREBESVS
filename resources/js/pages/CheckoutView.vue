@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import NavBar from "../components/NavBar.vue";
 import Footer from "../components/NavFooter.vue";
-import { computed, ref } from "vue";
-import { useForm, usePage, Link, router } from "@inertiajs/vue3";
+import { computed, ref, onMounted, watch } from "vue";
+import { useForm, usePage, Link } from "@inertiajs/vue3";
+import { loadStripe } from "@stripe/stripe-js";
+import type { Stripe, StripeElements, StripeCardElement } from "@stripe/stripe-js";
 
-const page = usePage<any>();
-const cart = computed(() => page.props.cart ?? { count: 0, items: [] });
+const page    = usePage<any>();
+const cart    = computed(() => page.props.cart ?? { count: 0, items: [] });
+const prefill = computed(() => (page.props.prefill as any) ?? {});
 
 const subtotal = computed(() =>
   (cart.value.items ?? []).reduce(
@@ -14,48 +17,37 @@ const subtotal = computed(() =>
   )
 );
 
-// --- Fake card fields (UI only)
-const cardNumber = ref("");
-const cardExpiry = ref("");
-const cardCvv = ref("");
+// --- Stripe
+let stripe: Stripe | null = null;
+let elements: StripeElements | null = null;
+let cardElement: StripeCardElement | null = null;
+const stripeReady = ref(false);
+const stripeError = ref("");
+const paymentLoading = ref(false);
 
-// --- Format card number: 4242 4242 4242 4242
-function formatCardNumber(e: Event) {
-  const input = e.target as HTMLInputElement;
-  let value = input.value;
-
-  value = value.replace(/\D/g, "");   // only digits
-  value = value.slice(0, 16);        // max 16 digits
-  value = value.replace(/(.{4})/g, "$1 ").trim(); // spaces
-
-  cardNumber.value = value;
+async function initStripe() {
+  stripe = await loadStripe(import.meta.env.VITE_STRIPE_KEY ?? "");
+  if (!stripe) return;
+  elements = stripe.elements();
+  cardElement = elements.create("card", {
+    hidePostalCode: true,
+    style: {
+      base: {
+        fontSize: "15px",
+        fontFamily: "inherit",
+        color: "#072536",
+        "::placeholder": { color: "#aab7c4" },
+      },
+      invalid: { color: "#c0392b" },
+    },
+  });
+  cardElement.mount("#stripe-card-element");
+  stripeReady.value = true;
 }
 
-// --- Format expiry: MM/YY
-function formatExpiry(e: Event) {
-  const input = e.target as HTMLInputElement;
-  let value = input.value;
-
-  value = value.replace(/\D/g, ""); // only digits
-  value = value.slice(0, 4);       // max 4 digits
-
-  if (value.length >= 3) {
-    value = value.slice(0, 2) + "/" + value.slice(2);
-  }
-
-  cardExpiry.value = value;
-}
-
-// --- Format CVV: 123
-function formatCvv(e: Event) {
-  const input = e.target as HTMLInputElement;
-  let value = input.value;
-
-  value = value.replace(/\D/g, ""); // only digits
-  value = value.slice(0, 3);       // max 3 digits
-
-  cardCvv.value = value;
-}
+onMounted(() => {
+  initStripe();
+});
 
 // --- Kupons
 const couponInput = ref("");
@@ -76,8 +68,7 @@ async function applyCoupon() {
   couponLoading.value = true;
 
   try {
-    const csrf = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content
-      ?? document.cookie.split('; ').find(r => r.startsWith('XSRF-TOKEN='))?.split('=')[1]?.replace(/%3D/g, '=') ?? "";
+    const csrf = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content ?? "";
     const res = await fetch("/checkout/validate-coupon", {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrf },
@@ -104,28 +95,76 @@ function removeCoupon() {
 
 // --- Checkout form
 const form = useForm({
-  full_name: "",
-  email: "",
-  phone: "",
-  address: "",
-  city: "",
-  postcode: "",
-  country: "Latvija",
-  payment_method: "card",
-  coupon_code: "",
+  full_name:         prefill.value.full_name ?? "",
+  email:             prefill.value.email     ?? "",
+  phone:             prefill.value.phone     ?? "",
+  address:           prefill.value.address   ?? "",
+  city:              prefill.value.city      ?? "",
+  postcode:          prefill.value.postcode  ?? "",
+  country:           prefill.value.country   ?? "Latvija",
+  payment_method:    "card",
+  coupon_code:       "",
+  payment_intent_id: "",
 });
 
-function submit() {
+watch(() => form.payment_method, (val) => {
+  if (val === "card" && !stripeReady.value) {
+    setTimeout(initStripe, 100);
+  }
+});
+
+async function submit() {
   if ((cart.value.count ?? 0) <= 0) return;
+  stripeError.value = "";
+  form.coupon_code = coupon.value ? couponInput.value.trim().toUpperCase() : "";
 
   if (form.payment_method === "card") {
-    if (!cardNumber.value || !cardExpiry.value || !cardCvv.value) {
-      alert("Lūdzu aizpildi kartes datus (testa režīms).");
+    if (!stripe || !cardElement) {
+      stripeError.value = "Stripe nav ielādēts. Pārlādē lapu.";
       return;
     }
+
+    paymentLoading.value = true;
+
+    try {
+      const csrf = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content ?? "";
+      const piRes = await fetch("/checkout/create-payment-intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrf },
+        body: JSON.stringify({ coupon_code: form.coupon_code }),
+      });
+
+      const piData = await piRes.json();
+
+      if (piData.error) {
+        stripeError.value = piData.error;
+        paymentLoading.value = false;
+        return;
+      }
+
+      const { error, paymentIntent } = await stripe.confirmCardPayment(piData.client_secret, {
+        payment_method: {
+          card: cardElement,
+          billing_details: { name: form.full_name, email: form.email },
+        },
+      });
+
+      if (error) {
+        stripeError.value = error.message ?? "Maksājuma kļūda.";
+        paymentLoading.value = false;
+        return;
+      }
+
+      form.payment_intent_id = paymentIntent!.id;
+    } catch {
+      stripeError.value = "Savienojuma kļūda ar maksājumu sistēmu.";
+      paymentLoading.value = false;
+      return;
+    }
+
+    paymentLoading.value = false;
   }
 
-  form.coupon_code = coupon.value ? couponInput.value.trim().toUpperCase() : "";
   form.post("/checkout");
 }
 </script>
@@ -205,53 +244,15 @@ function submit() {
             </select>
           </div>
 
-          <!-- Card fields -->
+          <!-- Stripe card element -->
           <div v-if="form.payment_method === 'card'" class="card-box">
-            <div class="field">
-              <label>Kartes numurs</label>
-              <input
-                type="text"
-                inputmode="numeric"
-                pattern="[0-9 ]*"
-                :value="cardNumber"
-                @input="formatCardNumber"
-                placeholder="4242 4242 4242 4242"
-              />
-            </div>
-
-            <div class="row">
-              <div class="field">
-                <label>Derīguma termiņš</label>
-                <input
-                  type="text"
-                  inputmode="numeric"
-                  pattern="[0-9/]*"
-                  :value="cardExpiry"
-                  @input="formatExpiry"
-                  placeholder="MM/YY"
-                />
-              </div>
-
-              <div class="field">
-                <label>CVV</label>
-                <input
-                  type="text"
-                  inputmode="numeric"
-                  pattern="[0-9]*"
-                  :value="cardCvv"
-                  @input="formatCvv"
-                  placeholder="123"
-                />
-              </div>
-            </div>
-
-            <p class="test-note">
-              Testa režīms — maksājums netiek veikts. Kartes dati netiek saglabāti.
-            </p>
+            <div id="stripe-card-element" class="stripe-element"></div>
+            <div v-if="stripeError" class="err" style="margin-top:8px;">{{ stripeError }}</div>
+            <div v-if="form.errors.payment" class="err" style="margin-top:8px;">{{ form.errors.payment }}</div>
           </div>
 
-          <button class="btn" @click="submit">
-            Apmaksāt (Testa režīms)
+          <button class="btn" :disabled="form.processing || paymentLoading" @click="submit">
+            {{ paymentLoading ? "Apstrādā maksājumu..." : form.processing ? "Saglabā..." : "Apmaksāt" }}
           </button>
         </div>
 
@@ -275,7 +276,7 @@ function submit() {
 
             <div v-if="coupon" class="coupon-applied">
               <div class="coupon-applied-info">
-                <span class="coupon-tag">🎟️ {{ coupon.name }}</span>
+                <span class="coupon-tag">{{ coupon.name }}</span>
                 <span class="coupon-pct">-{{ coupon.discount_percent }}%</span>
               </div>
               <button class="coupon-remove" @click="removeCoupon">✕ Noņemt</button>
@@ -340,10 +341,22 @@ input, select { padding:10px;border:1px solid #ddd;border-radius:8px; }
   width:100%;
   border-radius:10px;
   font-weight:900;
+  cursor:pointer;
+  border:none;
+  font-size:15px;
+  font-family:inherit;
+  transition:opacity .15s;
 }
+.btn:disabled { opacity:.6;cursor:not-allowed; }
 
-.card-box { background:#f7f7f7;padding:10px;border-radius:10px;margin-bottom:10px; }
-.test-note { font-size:12px;color:#666;font-weight:700; }
+.card-box { background:#f7f7f7;padding:14px;border-radius:10px;margin-bottom:10px; }
+
+.stripe-element {
+  background:#fff;
+  border:1px solid #ddd;
+  border-radius:8px;
+  padding:12px 10px;
+}
 
 .summary .item { display:flex;justify-content:space-between;margin-bottom:8px; }
 .sep { border:none;border-top:1px solid #eee;margin:10px 0; }

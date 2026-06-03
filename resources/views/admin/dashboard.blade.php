@@ -674,10 +674,11 @@
                         <th>Summa</th>
                         <th>Statuss</th>
                         <th>Datums</th>
+                        <th>Darbības</th>
                     </tr>
                 </thead>
                 <tbody id="ordersTable">
-                    <tr><td colspan="5" class="empty-cell">Ielādē...</td></tr>
+                    <tr><td colspan="6" class="empty-cell">Ielādē...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -695,13 +696,14 @@
                         <th>#</th>
                         <th>Vārds</th>
                         <th>E-pasts</th>
-                        <th>Admins</th>
+                        <th>Loma</th>
                         <th>Reģistrācija</th>
                         <th>Pasūtījumi</th>
+                        <th>Darbības</th>
                     </tr>
                 </thead>
                 <tbody id="usersTable">
-                    <tr><td colspan="6" class="empty-cell">Ielādē...</td></tr>
+                    <tr><td colspan="7" class="empty-cell">Ielādē...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -1037,41 +1039,79 @@ function addVariantRow(v = null) {
 }
 
 // ─── ORDERS ─────────────────────────────────────────────
+const ORDER_STATUSES = {
+    processing: { label: 'Apstrādē',  cls: 'badge-teal' },
+    shipped:    { label: 'Nosūtīts',  cls: 'badge-purple' },
+    delivered:  { label: 'Piegādāts', cls: 'badge-green' },
+    cancelled:  { label: 'Atcelts',   cls: 'badge-red' },
+};
+
 async function loadOrders() {
     const tbody = document.getElementById('ordersTable');
-    tbody.innerHTML = '<tr><td colspan="5" class="empty-cell">Ielādē...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-cell">Ielādē...</td></tr>';
     try {
         const r = await fetch('/admin/api/orders');
         if (!r.ok) throw new Error();
         const orders = await r.json();
         if (!orders.length) {
-            tbody.innerHTML = '<tr><td colspan="5" class="empty-cell">Nav pasūtījumu</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="empty-cell">Nav pasūtījumu</td></tr>';
             return;
         }
-        tbody.innerHTML = orders.map(o => `
+        tbody.innerHTML = orders.map(o => {
+            const st = ORDER_STATUSES[o.status] ?? { label: o.status, cls: 'badge-green' };
+            const opts = Object.entries(ORDER_STATUSES).map(([val, {label}]) =>
+                `<option value="${val}" ${o.status === val ? 'selected' : ''}>${label}</option>`
+            ).join('');
+            return `
             <tr>
                 <td><strong style="color:var(--teal-dark)">#${o.id}</strong></td>
                 <td>${escHtml(o.user?.name ?? '—')}</td>
                 <td><strong>€${Number(o.total ?? 0).toFixed(2)}</strong></td>
-                <td><span class="badge badge-green">${escHtml(o.status ?? 'jauns')}</span></td>
+                <td><span class="badge ${st.cls}">${st.label}</span></td>
                 <td style="color:var(--ink-soft);font-size:13px;">${new Date(o.created_at).toLocaleDateString('lv-LV')}</td>
-            </tr>
-        `).join('');
+                <td>
+                    <div style="display:flex;gap:6px;align-items:center;">
+                        <select class="status-select" style="padding:5px 8px;font-size:12px;border-radius:8px;border:1px solid var(--border);" onchange="updateOrderStatus(${o.id}, this.value, this)">
+                            ${opts}
+                        </select>
+                    </div>
+                </td>
+            </tr>`;
+        }).join('');
     } catch(e) {
-        tbody.innerHTML = '<tr><td colspan="5" class="empty-cell">Neizdevās ielādēt pasūtījumus.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-cell">Neizdevās ielādēt pasūtījumus.</td></tr>';
+    }
+}
+
+async function updateOrderStatus(id, status, selectEl) {
+    try {
+        const r = await fetch(`/admin/api/orders/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
+            body: JSON.stringify({ status }),
+        });
+        if (r.ok) {
+            showToast('Statuss atjaunināts!');
+            loadOrders();
+        } else {
+            showToast('Kļūda!', 'error');
+            loadOrders();
+        }
+    } catch(e) {
+        showToast('Savienojuma kļūda!', 'error');
     }
 }
 
 // ─── USERS ──────────────────────────────────────────────
 async function loadUsers() {
     const tbody = document.getElementById('usersTable');
-    tbody.innerHTML = '<tr><td colspan="6" class="empty-cell">Ielādē...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-cell">Ielādē...</td></tr>';
     try {
         const r = await fetch('/admin/api/users');
         if (!r.ok) throw new Error();
         const users = await r.json();
         if (!users.length) {
-            tbody.innerHTML = '<tr><td colspan="6" class="empty-cell">Nav lietotāju</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" class="empty-cell">Nav lietotāju</td></tr>';
             return;
         }
         tbody.innerHTML = users.map((u, i) => `
@@ -1084,10 +1124,35 @@ async function loadUsers() {
                     : '<span class="badge" style="background:var(--bg-soft);color:var(--ink-muted)">Lietotājs</span>'}</td>
                 <td style="color:var(--ink-soft);font-size:13px;">${new Date(u.created_at).toLocaleDateString('lv-LV')}</td>
                 <td><span class="badge badge-teal">${u.orders_count ?? 0}</span></td>
+                <td>
+                    <button class="btn btn-ghost btn-sm" onclick="toggleUserRole(${u.id}, ${u.is_admin ? 1 : 0})">
+                        ${u.is_admin ? 'Noņemt admin' : 'Padarīt admin'}
+                    </button>
+                </td>
             </tr>
         `).join('');
     } catch(e) {
-        tbody.innerHTML = '<tr><td colspan="6" class="empty-cell">Neizdevās ielādēt lietotājus.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-cell">Neizdevās ielādēt lietotājus.</td></tr>';
+    }
+}
+
+async function toggleUserRole(id, currentlyAdmin) {
+    const action = currentlyAdmin ? 'noņemt admin tiesības' : 'piešķirt admin tiesības';
+    if (!confirm(`Vai tiešām vēlies ${action} šim lietotājam?`)) return;
+    try {
+        const r = await fetch(`/admin/api/users/${id}/role`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
+        });
+        if (r.ok) {
+            showToast(currentlyAdmin ? 'Admin tiesības noņemtas!' : 'Lietotājs kļuvis par adminu!');
+            loadUsers();
+        } else {
+            const d = await r.json().catch(() => ({}));
+            showToast(d.error ?? 'Kļūda!', 'error');
+        }
+    } catch(e) {
+        showToast('Savienojuma kļūda!', 'error');
     }
 }
 
