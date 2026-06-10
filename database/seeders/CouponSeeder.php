@@ -9,7 +9,9 @@ class CouponSeeder extends Seeder
 {
     public function run(): void
     {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
         DB::table('coupons')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
         DB::table('coupons')->insert([
             ['name' => '5% Atlaide',  'tier' => 'bronze',   'discount_percent' => 5,  'points_required' => 500,  'created_at' => now(), 'updated_at' => now()],
