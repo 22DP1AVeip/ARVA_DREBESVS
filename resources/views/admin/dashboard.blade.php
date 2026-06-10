@@ -790,6 +790,23 @@
     </div>
 </div>
 
+<!-- ─── CONFIRM MODAL ───────────────────────────────────── -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal" style="max-width:420px;">
+        <div class="modal-head">
+            <h3 id="confirmTitle">Apstiprini darbību</h3>
+            <button class="modal-close" onclick="closeConfirmModal(false)">✕</button>
+        </div>
+        <div class="modal-body">
+            <p id="confirmMessage" style="color:var(--ink-soft);font-size:14px;line-height:1.6;"></p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeConfirmModal(false)">Atcelt</button>
+            <button class="btn btn-primary" id="confirmAcceptBtn" onclick="closeConfirmModal(true)">Apstiprināt</button>
+        </div>
+    </div>
+</div>
+
 <!-- ─── TOAST ───────────────────────────────────────────── -->
 <div class="toast" id="toast"></div>
 
@@ -828,6 +845,27 @@ function showToast(msg, type = 'success') {
     t.textContent = (type === 'success' ? '✓  ' : '✕  ') + msg;
     t.className = 'toast show ' + type;
     setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// ─── CONFIRM MODAL ──────────────────────────────────────
+let confirmResolve = null;
+
+function confirmAction(message, { title = 'Apstiprini darbību', acceptLabel = 'Apstiprināt', danger = false } = {}) {
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmMessage').textContent = message;
+    const acceptBtn = document.getElementById('confirmAcceptBtn');
+    acceptBtn.textContent = acceptLabel;
+    acceptBtn.className = 'btn ' + (danger ? 'btn-danger' : 'btn-primary');
+    document.getElementById('confirmModal').classList.add('open');
+    return new Promise((resolve) => { confirmResolve = resolve; });
+}
+
+function closeConfirmModal(result) {
+    document.getElementById('confirmModal').classList.remove('open');
+    if (confirmResolve) {
+        confirmResolve(result);
+        confirmResolve = null;
+    }
 }
 
 // ─── STATS ──────────────────────────────────────────────
@@ -1003,7 +1041,12 @@ async function saveProduct() {
 }
 
 async function deleteProduct(id) {
-    if (!confirm('Dzēst šo produktu un visus tā variantus?')) return;
+    const ok = await confirmAction('Dzēst šo produktu un visus tā variantus?', {
+        title: 'Dzēst produktu',
+        acceptLabel: 'Dzēst',
+        danger: true,
+    });
+    if (!ok) return;
     try {
         const r = await fetch(`/admin/api/products/${id}`, {
             method: 'DELETE',
@@ -1138,7 +1181,12 @@ async function loadUsers() {
 
 async function toggleUserRole(id, currentlyAdmin) {
     const action = currentlyAdmin ? 'noņemt admin tiesības' : 'piešķirt admin tiesības';
-    if (!confirm(`Vai tiešām vēlies ${action} šim lietotājam?`)) return;
+    const ok = await confirmAction(`Vai tiešām vēlies ${action} šim lietotājam?`, {
+        title: currentlyAdmin ? 'Noņemt admin tiesības' : 'Piešķirt admin tiesības',
+        acceptLabel: currentlyAdmin ? 'Noņemt' : 'Piešķirt',
+        danger: currentlyAdmin,
+    });
+    if (!ok) return;
     try {
         const r = await fetch(`/admin/api/users/${id}/role`, {
             method: 'PUT',
