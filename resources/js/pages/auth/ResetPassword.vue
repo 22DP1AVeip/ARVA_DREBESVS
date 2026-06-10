@@ -215,12 +215,14 @@ const submit = () => {
 .auth-page :deep(input),
 .auth-page :deep(textarea),
 .auth-page :deep(select) {
-    color: #ffffff;
+    color: var(--arva-ink);
+    background-color: var(--arva-bg);
+    border-color: rgba(7, 37, 54, 0.16);
 }
 
 .auth-page :deep(input::placeholder),
 .auth-page :deep(textarea::placeholder) {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(7, 37, 54, 0.45);
 }
 
 @media (min-width: 960px) {
