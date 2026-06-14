@@ -2,12 +2,6 @@
 
 <template>
     <main class="home">
-        <section class="hero">
-            <p class="eyebrow">ARVA DREBESVS</p>
-            <h1>Elegants stils ikdienai</h1>
-            <p class="subtitle">Izvēlies savu virzienu — vīriešu vai sieviešu apģērbu.</p>
-        </section>
-
         <section class="categories">
             <article class="category-card men">
                 <div class="card-media">
@@ -55,31 +49,6 @@
         radial-gradient(900px 500px at 85% 20%, rgba(199, 223, 233, 0.55) 0%, transparent 65%),
         linear-gradient(180deg, #ffffff 0%, var(--mist) 100%);
     color: var(--ink);
-}
-
-.hero {
-    max-width: 680px;
-    margin: 0 auto 50px;
-    animation: fade-up 0.7s ease-out both;
-}
-
-.eyebrow {
-    text-transform: uppercase;
-    letter-spacing: 0.28em;
-    font-size: 12px;
-    color: var(--ink-soft);
-    margin-bottom: 18px;
-}
-
-.hero h1 {
-    font-size: clamp(32px, 4vw, 52px);
-    line-height: 1.05;
-    margin-bottom: 16px;
-}
-
-.subtitle {
-    font-size: 16px;
-    color: rgba(7, 37, 54, 0.7);
 }
 
 .categories {
