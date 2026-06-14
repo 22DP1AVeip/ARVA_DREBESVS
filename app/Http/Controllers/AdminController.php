@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
-    // ─── STATS ───────────────────────────────────────────
     public function stats()
     {
         return response()->json([
@@ -21,7 +20,6 @@ class AdminController extends Controller
         ]);
     }
 
-    // ─── PRODUCTS ────────────────────────────────────────
     public function products()
     {
         $products = Product::withCount('variants')->orderByDesc('id')->get();
@@ -87,7 +85,6 @@ class AdminController extends Controller
         return response()->json($product->load('variants'));
     }
 
-    // ─── PRODUCT IMAGE UPLOAD ─────────────────────────────
     private function storeProductImage(Request $request, string $field): ?string
     {
         if (!$request->hasFile($field)) {
@@ -110,7 +107,6 @@ class AdminController extends Controller
         return response()->json(['ok' => true]);
     }
 
-    // ─── VARIANT SYNC ────────────────────────────────────
     private function syncVariants(Product $product, array $variants)
     {
         $sentIds = [];
@@ -156,7 +152,6 @@ class AdminController extends Controller
         }
     }
 
-    // ─── ORDERS ──────────────────────────────────────────
     public function orders()
     {
         try {
@@ -167,7 +162,6 @@ class AdminController extends Controller
         }
     }
 
-    // ─── UPDATE ORDER STATUS ─────────────────────────────
     public function updateOrderStatus(Request $request, $id)
     {
         $request->validate([
@@ -180,7 +174,6 @@ class AdminController extends Controller
         return response()->json(['ok' => true, 'status' => $order->status]);
     }
 
-    // ─── UPDATE USER ROLE ────────────────────────────────
     public function updateUserRole(Request $request, $id)
     {
         $user = User::findOrFail($id);
@@ -194,7 +187,6 @@ class AdminController extends Controller
         return response()->json(['ok' => true, 'is_admin' => $user->is_admin]);
     }
 
-    // ─── USERS ───────────────────────────────────────────
     public function users()
     {
         $users = User::withCount('orders')->orderByDesc('id')->get();

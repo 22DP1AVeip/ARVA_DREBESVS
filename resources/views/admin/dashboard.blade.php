@@ -39,7 +39,6 @@
             display: flex;
         }
 
-        /* ── SIDEBAR ─────────────────────────────────────── */
         .sidebar {
             width: var(--sidebar-w);
             background: var(--bg-card);
@@ -120,7 +119,6 @@
 
         .sidebar-footer a:hover { color: var(--ink); }
 
-        /* ── MAIN ────────────────────────────────────────── */
         .main {
             margin-left: var(--sidebar-w);
             flex: 1;
@@ -143,7 +141,6 @@
 
         .page-title span { color: var(--teal-dark); }
 
-        /* ── STATS ───────────────────────────────────────── */
         .stats {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -189,7 +186,6 @@
             line-height: 1;
         }
 
-        /* ── PANEL ───────────────────────────────────────── */
         .panel {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -213,7 +209,6 @@
             color: var(--ink);
         }
 
-        /* ── BUTTONS ─────────────────────────────────────── */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -257,7 +252,6 @@
 
         .btn-sm { padding: 6px 12px; font-size: 12px; }
 
-        /* ── TABLE ───────────────────────────────────────── */
         table { width: 100%; border-collapse: collapse; }
 
         thead tr { border-bottom: 1px solid var(--border); }
@@ -297,7 +291,6 @@
 
         .actions { display: flex; gap: 6px; }
 
-        /* ── SEARCH BAR ──────────────────────────────────── */
         .search-wrap { position: relative; }
 
         .search-wrap svg {
@@ -315,7 +308,6 @@
             padding-left: 34px !important;
         }
 
-        /* ── FORMS ───────────────────────────────────────── */
         .form-group { margin-bottom: 16px; }
 
         .form-label {
@@ -349,9 +341,55 @@
         select option { background: #fff; }
 
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .form-row-4 { display: grid; grid-template-columns: 1fr 1fr 100px 90px 36px; gap: 8px; align-items: end; margin-bottom: 8px; }
+        .form-row-variant { display: grid; grid-template-columns: 1fr 1fr 90px 36px; gap: 8px; align-items: end; margin-bottom: 8px; }
 
-        /* ── MODAL ───────────────────────────────────────── */
+        .file-drop {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-height: 96px;
+            border: 1px dashed var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-soft);
+            padding: 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color .15s, background .15s;
+        }
+        .file-drop:hover { border-color: var(--teal); background: var(--teal-dim); }
+        .file-drop input[type=file] { display: none; }
+        .file-drop-icon { font-size: 22px; opacity: .45; }
+        .file-drop-text { font-size: 12px; color: var(--ink-muted); font-weight: 600; }
+        .file-drop .img-thumb { width: 64px; height: 64px; }
+
+        .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--bg-soft);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink-soft);
+            cursor: pointer;
+            user-select: none;
+            transition: all .15s;
+        }
+        .chip input { display: none; }
+        .chip.active { background: var(--teal-dim); border-color: var(--teal); color: var(--teal-dark); }
+        .variant-bulk {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-soft);
+            padding: 14px;
+            margin-bottom: 18px;
+        }
+
         .modal-overlay {
             display: none;
             position: fixed;
@@ -426,7 +464,6 @@
             background: var(--bg-soft);
         }
 
-        /* ── TABS ────────────────────────────────────────── */
         .tab-bar {
             display: flex;
             gap: 0;
@@ -453,10 +490,9 @@
         .tab-pane { display: none; }
         .tab-pane.active { display: block; }
 
-        /* ── VARIANTS ────────────────────────────────────── */
         .variant-header {
             display: grid;
-            grid-template-columns: 1fr 1fr 100px 90px 36px;
+            grid-template-columns: 1fr 1fr 90px 36px;
             gap: 8px;
             margin-bottom: 6px;
         }
@@ -487,11 +523,9 @@
 
         .remove-variant:hover { background: #c0392b; color: #fff; border-color: #c0392b; }
 
-        /* ── SECTION VISIBILITY ──────────────────────────── */
         .section { display: none; }
         .section.active { display: block; }
 
-        /* ── IMG ─────────────────────────────────────────── */
         .img-thumb {
             width: 46px;
             height: 46px;
@@ -512,7 +546,6 @@
             font-size: 20px;
         }
 
-        /* ── TOAST ───────────────────────────────────────── */
         .toast {
             position: fixed;
             bottom: 24px;
@@ -538,7 +571,6 @@
         .toast.success { border-left: 4px solid var(--teal); color: var(--teal-dark); }
         .toast.error   { border-left: 4px solid #c0392b;    color: #c0392b; }
 
-        /* ── EMPTY STATE ─────────────────────────────────── */
         .empty-cell {
             text-align: center;
             color: var(--ink-muted);
@@ -551,7 +583,6 @@
 </head>
 <body>
 
-<!-- ─── SIDEBAR ────────────────────────────────────────── -->
 <aside class="sidebar">
     <div class="sidebar-brand">
         <img src="/bildites/Logo_Arva.png" alt="ARVA" />
@@ -595,7 +626,6 @@
     </div>
 </aside>
 
-<!-- ─── MAIN ────────────────────────────────────────────── -->
 <main class="main">
     <div class="topbar">
         <div class="page-title" id="pageTitle">Produkti</div>
@@ -710,7 +740,6 @@
     </div>
 </main>
 
-<!-- ─── PRODUCT MODAL ───────────────────────────────────── -->
 <div class="modal-overlay" id="productModal" onclick="handleOverlayClick(event)">
     <div class="modal">
         <div class="modal-head">
@@ -757,29 +786,50 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Attēls — vīrieši</label>
-                        <input type="file" id="prodImageMen" accept="image/*" />
-                        <img id="prodImageMenPreview" class="img-thumb" style="display:none;margin-top:8px;" />
+                        <label class="file-drop">
+                            <input type="file" id="prodImageMen" accept="image/*" onchange="handleImageSelect('prodImageMen')" />
+                            <img id="prodImageMenPreview" class="img-thumb" style="display:none;" />
+                            <span class="file-drop-icon" id="prodImageMenIcon">🖼️</span>
+                            <span class="file-drop-text" id="prodImageMenText">Klikšķini, lai pievienotu attēlu</span>
+                        </label>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Attēls — sievietes</label>
-                        <input type="file" id="prodImageWomen" accept="image/*" />
-                        <img id="prodImageWomenPreview" class="img-thumb" style="display:none;margin-top:8px;" />
+                        <label class="file-drop">
+                            <input type="file" id="prodImageWomen" accept="image/*" onchange="handleImageSelect('prodImageWomen')" />
+                            <img id="prodImageWomenPreview" class="img-thumb" style="display:none;" />
+                            <span class="file-drop-icon" id="prodImageWomenIcon">🖼️</span>
+                            <span class="file-drop-text" id="prodImageWomenText">Klikšķini, lai pievienotu attēlu</span>
+                        </label>
                     </div>
                 </div>
             </div>
 
             <!-- VARIANTS -->
             <div class="tab-pane" id="tab-variants">
+                <div class="variant-bulk">
+                    <label class="form-label">Krāsas</label>
+                    <div class="chip-group" id="bulkColors"></div>
+                    <label class="form-label" style="margin-top:12px;">Izmēri</label>
+                    <div class="chip-group" id="bulkSizes"></div>
+                    <div class="form-row" style="margin-top:12px;align-items:end;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Sākotnējais stock</label>
+                            <input type="number" id="bulkStock" min="0" value="10" />
+                        </div>
+                        <button class="btn btn-teal" type="button" onclick="generateVariants()">+ Pievienot variantus</button>
+                    </div>
+                </div>
+
                 <div class="variant-header">
                     <span>Krāsa</span>
                     <span>Izmērs</span>
-                    <span>Cena (€)</span>
                     <span>Stock</span>
                     <span></span>
                 </div>
                 <div id="variantsList"></div>
                 <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:10px;" onclick="addVariantRow()">
-                    + Pievienot variantu
+                    + Pievienot variantu manuāli
                 </button>
             </div>
         </div>
@@ -791,7 +841,6 @@
     </div>
 </div>
 
-<!-- ─── CONFIRM MODAL ───────────────────────────────────── -->
 <div class="modal-overlay" id="confirmModal">
     <div class="modal" style="max-width:420px;">
         <div class="modal-head">
@@ -808,7 +857,6 @@
     </div>
 </div>
 
-<!-- ─── TOAST ───────────────────────────────────────────── -->
 <div class="toast" id="toast"></div>
 
 <script>
@@ -816,7 +864,17 @@ const CSRF = document.querySelector('meta[name="csrf-token"]').content;
 let editingProductId = null;
 let allProducts = [];
 
-// ─── NAVIGATION ────────────────────────────────────────
+const CATEGORY_VARIANTS = {
+    tshirt: { colors: ['Melns', 'Balts', 'Jūras zils'],          sizes: ['XS', 'S', 'M', 'L', 'XL'] },
+    jeans:  { colors: ['Melns', 'Tumši zils', 'Pelēks'],         sizes: ['30/32', '32/32', '34/32', '34/34', '36/34'] },
+    jacket: { colors: ['Melns', 'Tumši zils', 'Haki'],           sizes: ['S', 'M', 'L', 'XL'] },
+    shoes:  { colors: ['Melns', 'Balts', 'Brūns'],               sizes: ['39', '40', '41', '42', '43', '44'] },
+    hat:    { colors: ['Melns', 'Balts', 'Bēšs'],                sizes: ['S/M', 'L/XL'] },
+    other:  { colors: ['Melns', 'Balts'],                        sizes: ['S', 'M', 'L'] },
+};
+
+document.getElementById('prodCategory').addEventListener('change', renderBulkChips);
+
 function showSection(name, el) {
     event.preventDefault();
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -831,7 +889,6 @@ function showSection(name, el) {
     if (name === 'users')  loadUsers();
 }
 
-// ─── TABS ───────────────────────────────────────────────
 function switchTab(name, el) {
     const modal = el.closest('.modal-body, .modal');
     modal.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -840,7 +897,6 @@ function switchTab(name, el) {
     el.classList.add('active');
 }
 
-// ─── TOAST ──────────────────────────────────────────────
 function showToast(msg, type = 'success') {
     const t = document.getElementById('toast');
     t.textContent = (type === 'success' ? '✓  ' : '✕  ') + msg;
@@ -848,7 +904,6 @@ function showToast(msg, type = 'success') {
     setTimeout(() => t.classList.remove('show'), 3200);
 }
 
-// ─── CONFIRM MODAL ──────────────────────────────────────
 let confirmResolve = null;
 
 function confirmAction(message, { title = 'Apstiprini darbību', acceptLabel = 'Apstiprināt', danger = false } = {}) {
@@ -869,7 +924,6 @@ function closeConfirmModal(result) {
     }
 }
 
-// ─── STATS ──────────────────────────────────────────────
 async function loadStats() {
     try {
         const r = await fetch('/admin/api/stats');
@@ -882,7 +936,6 @@ async function loadStats() {
     } catch(e) {}
 }
 
-// ─── PRODUCTS ───────────────────────────────────────────
 async function loadProducts() {
     try {
         const r = await fetch('/admin/api/products');
@@ -930,7 +983,6 @@ function filterProducts() {
     ));
 }
 
-// ─── PRODUCT MODAL ──────────────────────────────────────
 function resetModal() {
     document.querySelectorAll('#productModal .tab').forEach((t,i) => {
         t.classList.toggle('active', i === 0);
@@ -947,10 +999,9 @@ function openProductModal() {
     document.getElementById('prodPrice').value      = '';
     document.getElementById('prodCategory').value   = 'tshirt';
     document.getElementById('prodGender').value     = 'men';
-    document.getElementById('prodImageMen').value   = '';
-    document.getElementById('prodImageWomen').value = '';
-    document.getElementById('prodImageMenPreview').style.display   = 'none';
-    document.getElementById('prodImageWomenPreview').style.display = 'none';
+    resetImageDrop('prodImageMen', null);
+    resetImageDrop('prodImageWomen', null);
+    renderBulkChips();
     document.getElementById('variantsList').innerHTML = '';
     addVariantRow();
     resetModal();
@@ -970,13 +1021,9 @@ async function openEditModal(id) {
         document.getElementById('prodPrice').value      = p.price;
         document.getElementById('prodCategory').value   = p.category;
         document.getElementById('prodGender').value     = p.gender ?? 'men';
-        document.getElementById('prodImageMen').value   = '';
-        document.getElementById('prodImageWomen').value = '';
-
-        const menPreview   = document.getElementById('prodImageMenPreview');
-        const womenPreview = document.getElementById('prodImageWomenPreview');
-        if (p.image_men)   { menPreview.src   = p.image_men;   menPreview.style.display   = 'block'; } else { menPreview.style.display   = 'none'; }
-        if (p.image_women) { womenPreview.src = p.image_women; womenPreview.style.display = 'block'; } else { womenPreview.style.display = 'none'; }
+        resetImageDrop('prodImageMen', p.image_men);
+        resetImageDrop('prodImageWomen', p.image_women);
+        renderBulkChips();
 
         const vl = document.getElementById('variantsList');
         vl.innerHTML = '';
@@ -1014,13 +1061,12 @@ async function saveProduct() {
 
     const variants = [];
     document.querySelectorAll('#variantsList .variant-entry').forEach(row => {
-        const color = row.querySelector('.v-color').value.trim();
-        const size  = row.querySelector('.v-size').value.trim();
-        const vprice = row.querySelector('.v-price').value;
+        const color = row.querySelector('.v-color').value;
+        const size  = row.querySelector('.v-size').value;
         const stock  = row.querySelector('.v-stock').value;
         const vid    = row.dataset.vid;
         if (color && size) {
-            variants.push({ id: vid || null, color, size, price: vprice || null, stock: stock || 0 });
+            variants.push({ id: vid || null, color, size, stock: stock || 0 });
         }
     });
 
@@ -1035,7 +1081,6 @@ async function saveProduct() {
         if (v.id) formData.append(`variants[${i}][id]`, v.id);
         formData.append(`variants[${i}][color]`, v.color);
         formData.append(`variants[${i}][size]`, v.size);
-        if (v.price !== null) formData.append(`variants[${i}][price]`, v.price);
         formData.append(`variants[${i}][stock]`, v.stock);
     });
     if (editingProductId) formData.append('_method', 'PUT');
@@ -1086,24 +1131,101 @@ async function deleteProduct(id) {
     }
 }
 
-// ─── VARIANTS ───────────────────────────────────────────
+function resetImageDrop(prefix, src) {
+    document.getElementById(prefix).value = '';
+    const preview = document.getElementById(prefix + 'Preview');
+    const icon    = document.getElementById(prefix + 'Icon');
+    const text    = document.getElementById(prefix + 'Text');
+    if (src) {
+        preview.src = src;
+        preview.style.display = 'block';
+        icon.style.display = 'none';
+        text.textContent = 'Klikšķini, lai nomainītu attēlu';
+    } else {
+        preview.style.display = 'none';
+        icon.style.display = 'block';
+        text.textContent = 'Klikšķini, lai pievienotu attēlu';
+    }
+}
+
+function handleImageSelect(prefix) {
+    const file = document.getElementById(prefix).files[0];
+    if (!file) return;
+    const preview = document.getElementById(prefix + 'Preview');
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = 'block';
+    document.getElementById(prefix + 'Icon').style.display = 'none';
+    document.getElementById(prefix + 'Text').textContent = file.name;
+}
+
+function renderChips(containerId, options, checked = []) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = options.map(opt => `
+        <label class="chip ${checked.includes(opt) ? 'active' : ''}">
+            <input type="checkbox" value="${escHtml(opt)}" ${checked.includes(opt) ? 'checked' : ''} />
+            ${escHtml(opt)}
+        </label>
+    `).join('');
+    container.querySelectorAll('.chip').forEach(chip => {
+        const input = chip.querySelector('input');
+        input.addEventListener('change', () => chip.classList.toggle('active', input.checked));
+    });
+}
+
+function renderBulkChips() {
+    const category = document.getElementById('prodCategory').value;
+    const opts = CATEGORY_VARIANTS[category] ?? CATEGORY_VARIANTS.other;
+    renderChips('bulkColors', opts.colors);
+    renderChips('bulkSizes', opts.sizes);
+}
+
+function generateVariants() {
+    const colors = Array.from(document.querySelectorAll('#bulkColors input:checked')).map(i => i.value);
+    const sizes  = Array.from(document.querySelectorAll('#bulkSizes input:checked')).map(i => i.value);
+    const stock  = document.getElementById('bulkStock').value || 0;
+
+    if (!colors.length || !sizes.length) {
+        showToast('Izvēlies vismaz vienu krāsu un izmēru!', 'error');
+        return;
+    }
+
+    const existing = new Set();
+    document.querySelectorAll('#variantsList .variant-entry').forEach(row => {
+        const c = row.querySelector('.v-color').value;
+        const s = row.querySelector('.v-size').value;
+        existing.add(c + '|' + s);
+    });
+
+    colors.forEach(color => {
+        sizes.forEach(size => {
+            const key = color + '|' + size;
+            if (existing.has(key)) return;
+            addVariantRow({ color, size, stock });
+            existing.add(key);
+        });
+    });
+}
+
 function addVariantRow(v = null) {
+    const category = document.getElementById('prodCategory').value;
+    const opts = CATEGORY_VARIANTS[category] ?? CATEGORY_VARIANTS.other;
+    const colorOptions = v?.color && !opts.colors.includes(v.color) ? [...opts.colors, v.color] : opts.colors;
+    const sizeOptions  = v?.size  && !opts.sizes.includes(v.size)   ? [...opts.sizes,  v.size]  : opts.sizes;
+
     const div = document.createElement('div');
     div.className = 'variant-entry';
     div.dataset.vid = v?.id ?? '';
     div.innerHTML = `
-        <div class="form-row-4">
-            <input class="v-color" type="text" placeholder="Black" value="${escHtml(v?.color ?? '')}" />
-            <input class="v-size"  type="text" placeholder="M"     value="${escHtml(v?.size  ?? '')}" />
-            <input class="v-price" type="number" placeholder="—" step="0.01" min="0" value="${v?.price ?? ''}" />
-            <input class="v-stock" type="number" placeholder="0"  min="0"           value="${v?.stock ?? 0}" />
+        <div class="form-row-variant">
+            <select class="v-color">${colorOptions.map(c => `<option value="${escHtml(c)}" ${c === (v?.color ?? '') ? 'selected' : ''}>${escHtml(c)}</option>`).join('')}</select>
+            <select class="v-size">${sizeOptions.map(s => `<option value="${escHtml(s)}" ${s === (v?.size ?? '') ? 'selected' : ''}>${escHtml(s)}</option>`).join('')}</select>
+            <input class="v-stock" type="number" placeholder="0" min="0" value="${v?.stock ?? 0}" />
             <button class="remove-variant" type="button" onclick="this.closest('.variant-entry').remove()" title="Dzēst">✕</button>
         </div>
     `;
     document.getElementById('variantsList').appendChild(div);
 }
 
-// ─── ORDERS ─────────────────────────────────────────────
 const ORDER_STATUSES = {
     processing: { label: 'Apstrādē',  cls: 'badge-teal' },
     shipped:    { label: 'Nosūtīts',  cls: 'badge-purple' },
@@ -1167,7 +1289,6 @@ async function updateOrderStatus(id, status, selectEl) {
     }
 }
 
-// ─── USERS ──────────────────────────────────────────────
 async function loadUsers() {
     const tbody = document.getElementById('usersTable');
     tbody.innerHTML = '<tr><td colspan="7" class="empty-cell">Ielādē...</td></tr>';
@@ -1226,7 +1347,6 @@ async function toggleUserRole(id, currentlyAdmin) {
     }
 }
 
-// ─── HELPERS ────────────────────────────────────────────
 function escHtml(str) {
     return String(str ?? '')
         .replace(/&/g,'&amp;')
@@ -1235,7 +1355,6 @@ function escHtml(str) {
         .replace(/"/g,'&quot;');
 }
 
-// ─── INIT ───────────────────────────────────────────────
 loadStats();
 loadProducts();
 </script>

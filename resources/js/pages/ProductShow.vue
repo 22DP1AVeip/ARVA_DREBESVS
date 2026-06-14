@@ -360,7 +360,6 @@ function addToCart() {
 .heart.bump{transform:scale(1.15);}
 .title-row{display:flex;justify-content:space-between;align-items:center;gap:10px;}
 
-/* ── ATSAUKSMES ─────────────────────────────────────── */
 .reviews-section {
   margin-top: 40px;
   border-top: 1px solid rgba(7,37,54,.1);

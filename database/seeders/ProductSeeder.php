@@ -16,7 +16,6 @@ class ProductSeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
         $products = [
-            // ── VĪRIEŠI ──────────────────────────────────────────
             ['name' => 'Men Jeans 1',    'price' => 39.99, 'category' => 'jeans',   'gender' => 'men',   'image_men' => '/bildites/Men_jeans_1.jpg',   'image_women' => '/bildites/Woman_jeans_1.jpg'],
             ['name' => 'Men Jeans 2',    'price' => 49.99, 'category' => 'jeans',   'gender' => 'men',   'image_men' => '/bildites/Men_jeans_2.jpg',   'image_women' => '/bildites/Woman_jeans_2.jpg'],
             ['name' => 'Men T-Shirt 1',  'price' => 19.99, 'category' => 'tshirt',  'gender' => 'men',   'image_men' => '/bildites/Men_tshirt_1.jpg',  'image_women' => '/bildites/Woman_tshirt_1.jpg'],
@@ -28,7 +27,6 @@ class ProductSeeder extends Seeder
             ['name' => 'Men Hat 1',      'price' => 15.99, 'category' => 'hat',     'gender' => 'men',   'image_men' => '/bildites/Men_hats_1.jpg',    'image_women' => '/bildites/Woman_hats_1.jpg'],
             ['name' => 'Men Hat 2',      'price' => 19.99, 'category' => 'hat',     'gender' => 'men',   'image_men' => '/bildites/Men_hats_2.jpg',    'image_women' => '/bildites/Woman_hats_2.jpg'],
 
-            // ── SIEVIETES ─────────────────────────────────────────
             ['name' => 'Women Jeans 1',  'price' => 39.99, 'category' => 'jeans',   'gender' => 'women', 'image_men' => '/bildites/Men_jeans_1.jpg',   'image_women' => '/bildites/Woman_jeans_1.jpg'],
             ['name' => 'Women Jeans 2',  'price' => 49.99, 'category' => 'jeans',   'gender' => 'women', 'image_men' => '/bildites/Men_jeans_2.jpg',   'image_women' => '/bildites/Woman_jeans_2.jpg'],
             ['name' => 'Women T-Shirt 1','price' => 19.99, 'category' => 'tshirt',  'gender' => 'women', 'image_men' => '/bildites/Men_tshirt_1.jpg',  'image_women' => '/bildites/Woman_tshirt_1.jpg'],
