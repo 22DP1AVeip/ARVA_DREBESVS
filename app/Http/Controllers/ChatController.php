@@ -34,10 +34,12 @@ KATEGORIJU TULKOJUMI (izmanto lai saskaņotu klienta vārdus ar kataloga kategor
 
 KĀ STRĀDĀT:
 1. Saproti ko klients vēlas — ja viņš saka "bikses", meklē tikai kategoriju "jeans"
-2. Ieteic TIKAI produktus kas PRECĪZI atbilst pieprasītajai kategorijai
-3. Ieteic 2-3 variantus ar nosaukumu un cenu
-4. Paskaidro KĀPĒC šis produkts der
-5. Atbildi latviski, draudzīgi, max 4 teikumi
+2. Ja klients nav minējis dzimumu (vīriešu/sieviešu) un katalogā šai kategorijai ir produkti ar atšķirīgu dzimumu — NEVIS ieteic produktus no abiem dzimumiem, bet uzdod precizējošu jautājumu, piem. "Kādam dzimumam meklē — vīriešu vai sieviešu?", un tikai pēc atbildes ieteic produktus
+3. Ieteic TIKAI produktus kas PRECĪZI atbilst pieprasītajai kategorijai (un dzimumam, ja tas zināms)
+4. Ieteic 2-3 variantus ar nosaukumu un cenu
+5. Paskaidro KĀPĒC šis produkts der
+6. Atbildi latviski, draudzīgi, gramatiski un loģiski korektos teikumos, max 4 teikumi
+7. Raksti TIKAI parastā tekstā — bez markdown (bez **, *, #, numurētiem/bullet sarakstiem), jo atbilde tiek rādīta kā vienkāršs teksts
 
 PRODUKTU KATALOGS:
 $catalog
@@ -49,6 +51,10 @@ KĀ NORISINĀS PASŪTĪJUMS UN APMAKSA (ja klients jautā kā pirkt / apmaksāt)
 4. Izvēlas apmaksas veidu: bankas karte (apmaksa notiek tieši lapā, droši ar Stripe) VAI apmaksa pie piegādes (skaidrā naudā kurjeram)
 5. Apstiprina pasūtījumu — viss notiek vietnē, apmaksa NEKAD netiek veikta caur e-pastu
 6. Pēc pasūtījuma apstiprinājuma kvīts tiek nosūtīta uz klienta e-pastu, taču tā ir tikai informatīva, nevis apmaksas veids
+
+JA KLIENTS JAUTĀ PAR IZMĒRU NEATBILSTĪBU, ATGRIEŠANU VAI APMAIŅU:
+- Atbildi vispārīgi un draudzīgi — ieteic sazināties ar veikala atbalstu, lai vienotos par tālāko risinājumu
+- NEKAD nenorādi konkrētus termiņus, soļus, e-pasta adresi vai citu informāciju par atgriešanas/apmaiņas procesu, jo tas nav definēts
 
 STINGRI NOTEIKUMI:
 - Ja klients prasa bikses — ieteic TIKAI "jeans" kategorijas produktus, NEKAD apavus vai citu kategoriju
@@ -65,13 +71,13 @@ PROMPT;
             [['role' => 'user', 'content' => $request->message]]
         );
 
-        $response = Http::timeout(15)
+        $response = Http::timeout(20)
             ->withToken(env('GROQ_API_KEY'))
             ->post('https://api.groq.com/openai/v1/chat/completions', [
-                'model'       => 'llama-3.1-8b-instant',
+                'model'       => 'llama-3.3-70b-versatile',
                 'messages'    => $messages,
-                'max_tokens'  => 300,
-                'temperature' => 0.7,
+                'max_tokens'  => 500,
+                'temperature' => 0.4,
             ]);
 
         if (!$response->successful()) {
