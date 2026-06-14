@@ -752,17 +752,18 @@
                     <select id="prodGender">
                         <option value="men">Vīrieši</option>
                         <option value="women">Sievietes</option>
-                        <option value="unisex">Unisex (abi)</option>
                     </select>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label">Attēls — vīrieši (URL)</label>
-                        <input type="text" id="prodImageMen" placeholder="https://..." />
+                        <label class="form-label">Attēls — vīrieši</label>
+                        <input type="file" id="prodImageMen" accept="image/*" />
+                        <img id="prodImageMenPreview" class="img-thumb" style="display:none;margin-top:8px;" />
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Attēls — sievietes (URL)</label>
-                        <input type="text" id="prodImageWomen" placeholder="https://..." />
+                        <label class="form-label">Attēls — sievietes</label>
+                        <input type="file" id="prodImageWomen" accept="image/*" />
+                        <img id="prodImageWomenPreview" class="img-thumb" style="display:none;margin-top:8px;" />
                     </div>
                 </div>
             </div>
@@ -948,6 +949,8 @@ function openProductModal() {
     document.getElementById('prodGender').value     = 'men';
     document.getElementById('prodImageMen').value   = '';
     document.getElementById('prodImageWomen').value = '';
+    document.getElementById('prodImageMenPreview').style.display   = 'none';
+    document.getElementById('prodImageWomenPreview').style.display = 'none';
     document.getElementById('variantsList').innerHTML = '';
     addVariantRow();
     resetModal();
@@ -966,9 +969,14 @@ async function openEditModal(id) {
         document.getElementById('prodName').value       = p.name;
         document.getElementById('prodPrice').value      = p.price;
         document.getElementById('prodCategory').value   = p.category;
-        document.getElementById('prodGender').value     = p.gender ?? 'unisex';
-        document.getElementById('prodImageMen').value   = p.image_men   ?? '';
-        document.getElementById('prodImageWomen').value = p.image_women ?? '';
+        document.getElementById('prodGender').value     = p.gender ?? 'men';
+        document.getElementById('prodImageMen').value   = '';
+        document.getElementById('prodImageWomen').value = '';
+
+        const menPreview   = document.getElementById('prodImageMenPreview');
+        const womenPreview = document.getElementById('prodImageWomenPreview');
+        if (p.image_men)   { menPreview.src   = p.image_men;   menPreview.style.display   = 'block'; } else { menPreview.style.display   = 'none'; }
+        if (p.image_women) { womenPreview.src = p.image_women; womenPreview.style.display = 'block'; } else { womenPreview.style.display = 'none'; }
 
         const vl = document.getElementById('variantsList');
         vl.innerHTML = '';
@@ -994,12 +1002,12 @@ function handleOverlayClick(e) {
 }
 
 async function saveProduct() {
-    const name     = document.getElementById('prodName').value.trim();
-    const price    = document.getElementById('prodPrice').value;
-    const category = document.getElementById('prodCategory').value;
-    const gender   = document.getElementById('prodGender').value;
-    const image_men   = document.getElementById('prodImageMen').value.trim()   || null;
-    const image_women = document.getElementById('prodImageWomen').value.trim() || null;
+    const name      = document.getElementById('prodName').value.trim();
+    const price     = document.getElementById('prodPrice').value;
+    const category  = document.getElementById('prodCategory').value;
+    const gender    = document.getElementById('prodGender').value;
+    const imageMenFile   = document.getElementById('prodImageMen').files[0];
+    const imageWomenFile = document.getElementById('prodImageWomen').files[0];
 
     if (!name)  { showToast('Ievadi nosaukumu!', 'error'); return; }
     if (!price) { showToast('Ievadi cenu!', 'error'); return; }
@@ -1016,15 +1024,29 @@ async function saveProduct() {
         }
     });
 
-    const payload = { name, price, category, gender, image_men, image_women, variants };
-    const url    = editingProductId ? `/admin/api/products/${editingProductId}` : '/admin/api/products';
-    const method = editingProductId ? 'PUT' : 'POST';
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('price', price);
+    formData.append('category', category);
+    formData.append('gender', gender);
+    if (imageMenFile)   formData.append('image_men', imageMenFile);
+    if (imageWomenFile) formData.append('image_women', imageWomenFile);
+    variants.forEach((v, i) => {
+        if (v.id) formData.append(`variants[${i}][id]`, v.id);
+        formData.append(`variants[${i}][color]`, v.color);
+        formData.append(`variants[${i}][size]`, v.size);
+        if (v.price !== null) formData.append(`variants[${i}][price]`, v.price);
+        formData.append(`variants[${i}][stock]`, v.stock);
+    });
+    if (editingProductId) formData.append('_method', 'PUT');
+
+    const url = editingProductId ? `/admin/api/products/${editingProductId}` : '/admin/api/products';
 
     try {
         const r = await fetch(url, {
-            method,
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
-            body: JSON.stringify(payload),
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': CSRF },
+            body: formData,
         });
         if (r.ok) {
             showToast(editingProductId ? 'Produkts atjaunināts!' : 'Produkts izveidots!');

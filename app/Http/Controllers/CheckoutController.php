@@ -8,6 +8,7 @@ use Inertia\Inertia;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ProductVariant;
+use App\Models\CustomDesign;
 use App\Models\PointTransaction;
 use App\Models\UserCoupon;
 use App\Mail\OrderConfirmation;
@@ -18,6 +19,13 @@ use Stripe\PaymentIntent;
 
 class CheckoutController extends Controller
 {
+    private const CUSTOM_DESIGN_PRICE = 25.00;
+
+    private const CUSTOM_GARMENT_NAMES = [
+        'tshirt' => 'Krekls', 'hoodie' => 'Hudija', 'jeans' => 'Bikses',
+        'tshirt_w' => 'Krekls', 'hoodie_w' => 'Hudija', 'jeans_w' => 'Bikses',
+    ];
+
     public function index(Request $request)
     {
         $user      = $request->user();
@@ -65,15 +73,20 @@ class CheckoutController extends Controller
             return response()->json(['error' => 'Grozs ir tukšs.'], 400);
         }
 
-        $variantIds = array_keys($cart);
+        $variantIds = array_filter(array_keys($cart), fn($k) => !str_starts_with((string) $k, 'custom_'));
         $variants = ProductVariant::with('product')
             ->whereIn('id', $variantIds)
             ->get()
             ->keyBy('id');
 
         $total = 0;
-        foreach ($cart as $variantId => $qty) {
-            $variant = $variants->get((int) $variantId);
+        foreach ($cart as $key => $qty) {
+            if (str_starts_with((string) $key, 'custom_')) {
+                $total += self::CUSTOM_DESIGN_PRICE * (int) $qty;
+                continue;
+            }
+
+            $variant = $variants->get((int) $key);
             if (!$variant) continue;
             $price  = (float) ($variant->price ?? $variant->product->price);
             $total += $price * (int) $qty;
@@ -145,7 +158,7 @@ class CheckoutController extends Controller
             return redirect('/cart')->with('error', 'Grozs ir tukšs.');
         }
 
-        $variantIds = array_keys($cart);
+        $variantIds = array_filter(array_keys($cart), fn($k) => !str_starts_with((string) $k, 'custom_'));
 
         $variants = ProductVariant::with('product')
             ->whereIn('id', $variantIds)
@@ -159,6 +172,19 @@ class CheckoutController extends Controller
         }
 
         $user = $request->user();
+
+        $customKeys = array_filter(array_keys($cart), fn($k) => str_starts_with((string) $k, 'custom_'));
+        $customDesignIds = array_map(fn($k) => (int) str_replace('custom_', '', $k), $customKeys);
+        $customDesigns = $customDesignIds
+            ? CustomDesign::whereIn('id', $customDesignIds)->where('user_id', $user->id)->get()->keyBy('id')
+            : collect();
+
+        foreach ($customKeys as $key) {
+            $designId = (int) str_replace('custom_', '', $key);
+            if (!$customDesigns->has($designId)) {
+                return redirect('/cart')->with('error', 'Kāda prece vairs nav pieejama.');
+            }
+        }
 
         // Pārbaudīt kuponu
         $userCoupon = null;
@@ -174,7 +200,7 @@ class CheckoutController extends Controller
             }
         }
 
-        $order = DB::transaction(function () use ($user, $data, $cart, $variants, $discountPercent, $userCoupon) {
+        $order = DB::transaction(function () use ($user, $data, $cart, $variants, $customDesigns, $discountPercent, $userCoupon) {
             $order = Order::create([
                 'user_id'    => $user->id,
                 'status'     => 'processing',
@@ -190,8 +216,27 @@ class CheckoutController extends Controller
 
             $total = 0;
 
-            foreach ($cart as $variantId => $qty) {
-                $variant = $variants->get((int) $variantId);
+            foreach ($cart as $key => $qty) {
+                if (str_starts_with((string) $key, 'custom_')) {
+                    $design = $customDesigns->get((int) str_replace('custom_', '', $key));
+                    $price  = self::CUSTOM_DESIGN_PRICE;
+
+                    OrderItem::create([
+                        'order_id'           => $order->id,
+                        'product_id'         => null,
+                        'product_variant_id' => null,
+                        'name'               => 'Pielāgots ' . (self::CUSTOM_GARMENT_NAMES[$design->garment_id] ?? 'dizains'),
+                        'price'              => $price,
+                        'qty'                => (int) $qty,
+                        'color'              => $design->base_color,
+                        'size'               => '—',
+                    ]);
+
+                    $total += $price * (int) $qty;
+                    continue;
+                }
+
+                $variant = $variants->get((int) $key);
                 $product = $variant->product;
                 $price   = (float) ($variant->price ?? $product->price);
 

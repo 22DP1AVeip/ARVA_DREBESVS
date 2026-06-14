@@ -38,10 +38,12 @@ class AdminController extends Controller
     public function storeProduct(Request $request)
     {
         $request->validate([
-            'name'     => 'required|string|max:255',
-            'price'    => 'required|numeric|min:0',
-            'category' => 'required|string',
-            'gender'   => 'required|in:men,women,unisex',
+            'name'        => 'required|string|max:255',
+            'price'       => 'required|numeric|min:0',
+            'category'    => 'required|string',
+            'gender'      => 'required|in:men,women',
+            'image_men'   => 'nullable|image|max:4096',
+            'image_women' => 'nullable|image|max:4096',
         ]);
 
         $product = Product::create([
@@ -49,8 +51,8 @@ class AdminController extends Controller
             'price'        => $request->price,
             'category'     => $request->category,
             'gender'       => $request->gender,
-            'image_men'    => $request->image_men,
-            'image_women'  => $request->image_women,
+            'image_men'    => $this->storeProductImage($request, 'image_men'),
+            'image_women'  => $this->storeProductImage($request, 'image_women'),
         ]);
 
         $this->syncVariants($product, $request->variants ?? []);
@@ -63,10 +65,12 @@ class AdminController extends Controller
         $product = Product::findOrFail($id);
 
         $request->validate([
-            'name'     => 'required|string|max:255',
-            'price'    => 'required|numeric|min:0',
-            'category' => 'required|string',
-            'gender'   => 'required|in:men,women,unisex',
+            'name'        => 'required|string|max:255',
+            'price'       => 'required|numeric|min:0',
+            'category'    => 'required|string',
+            'gender'      => 'required|in:men,women',
+            'image_men'   => 'nullable|image|max:4096',
+            'image_women' => 'nullable|image|max:4096',
         ]);
 
         $product->update([
@@ -74,13 +78,27 @@ class AdminController extends Controller
             'price'       => $request->price,
             'category'    => $request->category,
             'gender'      => $request->gender,
-            'image_men'   => $request->image_men,
-            'image_women' => $request->image_women,
+            'image_men'   => $this->storeProductImage($request, 'image_men') ?? $product->image_men,
+            'image_women' => $this->storeProductImage($request, 'image_women') ?? $product->image_women,
         ]);
 
         $this->syncVariants($product, $request->variants ?? []);
 
         return response()->json($product->load('variants'));
+    }
+
+    // ─── PRODUCT IMAGE UPLOAD ─────────────────────────────
+    private function storeProductImage(Request $request, string $field): ?string
+    {
+        if (!$request->hasFile($field)) {
+            return null;
+        }
+
+        $file     = $request->file($field);
+        $filename = uniqid($field . '_') . '.' . $file->getClientOriginalExtension();
+        $file->move(public_path('uploads/products'), $filename);
+
+        return '/uploads/products/' . $filename;
     }
 
     public function destroyProduct($id)
