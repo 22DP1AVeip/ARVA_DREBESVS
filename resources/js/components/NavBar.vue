@@ -9,7 +9,7 @@
     </div>
 
     <div class="right-section">
-      <Link href="/design" class="design-nav-btn">🎨 Dizaina veidotājs</Link>
+      <Link href="/design" class="design-nav-btn">Dizaina veidotājs</Link>
 
       <button class="basket-button" @click="toggleCart" aria-label="Grozs">
         <img src="/bildites/basket_icon.png" alt="Grozs" class="basket-icon" />
@@ -30,8 +30,8 @@
           <div v-if="isUserMenuOpen" class="user-dropdown-menu">
             <Link href="/profile/settings" class="dropdown-item" @click="closeUserMenu">Profils</Link>
             <Link href="/profile/favorites" class="dropdown-item" @click="closeUserMenu">Favorīti</Link>
-            <Link href="/profile/designs" class="dropdown-item" @click="closeUserMenu">🎨 Mani dizaini</Link>
-            <Link v-if="auth.user?.is_admin" href="/admin" class="dropdown-item admin-item" @click="closeUserMenu">⚙️ Admin panelis</Link>
+            <Link href="/profile/designs" class="dropdown-item" @click="closeUserMenu">Mani dizaini</Link>
+            <Link v-if="auth.user?.is_admin" href="/admin" class="dropdown-item admin-item" @click="closeUserMenu">Admin panelis</Link>
             <button class="dropdown-item logout-item" @click="logout">Izrakstīties</button>
           </div>
         </transition>
