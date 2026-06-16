@@ -266,7 +266,7 @@ function submit(addToCart = false) {
                             {{ submitting ? 'Saglabā...' : 'Saglabāt dizainu' }}
                         </button>
                         <button class="cart-btn" type="button" :disabled="submitting" @click="submit(true)">
-                            🛒 Ielikt grozam
+                            Ielikt grozam
                         </button>
                     </div>
 

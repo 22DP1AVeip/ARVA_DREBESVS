@@ -65,11 +65,11 @@ function statusBadgeClass(s: string) {
             </Link>
 
             <Link href="/profile/designs" class="menu-item" :class="{ active: section === 'designs' }">
-              🎨 Mani dizaini
+              Mani dizaini
             </Link>
 
             <Link href="/profile/coupons" class="menu-item" :class="{ active: section === 'coupons' }">
-              🎟️ Kuponi &amp; punkti
+              Kuponi &amp; punkti
             </Link>
 
             <Link href="/profile/settings" class="menu-item" :class="{ active: section === 'settings' }">
@@ -110,7 +110,7 @@ function statusBadgeClass(s: string) {
             <h2 class="card-title">Favorīti</h2>
 
             <p v-if="favorites.length === 0" class="muted">
-              Te vēl nav favorītu. ❤️ (Pievienosim DB nākamajā solī)
+              Te vēl nav favorītu.
             </p>
 
             <div v-else class="favorites">

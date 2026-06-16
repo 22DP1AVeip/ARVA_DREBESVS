@@ -74,9 +74,9 @@ function remove(id: number) {
           <!-- Darbības -->
           <div class="actions">
             <button class="btn-cart" @click="addToCart(d.id)">
-              🛒 Pievienot grozam
+              Pievienot grozam
             </button>
-            <button class="btn-del" @click="remove(d.id)" title="Dzēst">✕</button>
+            <button class="btn-del" @click="remove(d.id)" title="Dzēst">Dzēst</button>
           </div>
         </div>
       </div>

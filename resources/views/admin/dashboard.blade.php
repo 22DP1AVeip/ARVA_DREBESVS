@@ -789,7 +789,7 @@
                         <label class="file-drop">
                             <input type="file" id="prodImageMen" accept="image/*" onchange="handleImageSelect('prodImageMen')" />
                             <img id="prodImageMenPreview" class="img-thumb" style="display:none;" />
-                            <span class="file-drop-icon" id="prodImageMenIcon">🖼️</span>
+                            <span class="file-drop-icon" id="prodImageMenIcon"></span>
                             <span class="file-drop-text" id="prodImageMenText">Klikšķini, lai pievienotu attēlu</span>
                         </label>
                     </div>
@@ -798,7 +798,7 @@
                         <label class="file-drop">
                             <input type="file" id="prodImageWomen" accept="image/*" onchange="handleImageSelect('prodImageWomen')" />
                             <img id="prodImageWomenPreview" class="img-thumb" style="display:none;" />
-                            <span class="file-drop-icon" id="prodImageWomenIcon">🖼️</span>
+                            <span class="file-drop-icon" id="prodImageWomenIcon"></span>
                             <span class="file-drop-text" id="prodImageWomenText">Klikšķini, lai pievienotu attēlu</span>
                         </label>
                     </div>
@@ -959,7 +959,7 @@ function renderProducts(products) {
             <td>
                 ${p.image_men
                     ? `<img src="${p.image_men}" class="img-thumb" />`
-                    : `<div class="img-placeholder">👕</div>`}
+                    : `<div class="img-placeholder">-</div>`}
             </td>
             <td><strong>${escHtml(p.name)}</strong></td>
             <td><span class="badge badge-purple">${escHtml(p.category)}</span></td>
