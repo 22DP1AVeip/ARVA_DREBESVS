@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { ref, nextTick, watch, onMounted } from "vue";
+import { ref, nextTick, onMounted } from "vue";
 
 interface Message {
   role: "user" | "assistant";
   text: string;
 }
 
-const STORAGE_KEY = "arva_chat";
 const DEFAULT_MSG: Message = { role: "assistant", text: "Sveiki! Es esmu ARVA personīgais stilists. Pastāsti — ko meklē? (piem. ikdienas krekls, elegants apģērbs, dāvana...)" };
 
 const open    = ref(false);
@@ -14,28 +13,11 @@ const input   = ref("");
 const loading = ref(false);
 const messagesEl = ref<HTMLElement | null>(null);
 
-function loadMessages(): Message[] {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) return JSON.parse(saved);
-  } catch {}
-  return [DEFAULT_MSG];
-}
-
-const messages = ref<Message[]>(loadMessages());
-
-watch(messages, (val) => {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(val)); } catch {}
-}, { deep: true });
+const messages = ref<Message[]>([DEFAULT_MSG]);
 
 onMounted(() => scrollDown());
 
 function toggle() { open.value = !open.value; }
-
-function clearChat() {
-  messages.value = [DEFAULT_MSG];
-  localStorage.removeItem(STORAGE_KEY);
-}
 
 async function send() {
   const text = input.value.trim();
@@ -90,7 +72,6 @@ async function scrollDown() {
           <span class="chat-title">🛍️ ARVA Asistents</span>
           <span class="chat-subtitle">Palīdzēšu atrast ko pirkt</span>
         </div>
-        <button class="chat-clear" @click="clearChat" title="Notīrīt sarunu">✕</button>
       </div>
 
       <div class="chat-messages" ref="messagesEl">
