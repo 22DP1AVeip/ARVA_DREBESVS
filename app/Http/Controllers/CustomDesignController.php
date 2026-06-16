@@ -12,11 +12,7 @@ class CustomDesignController extends Controller
     {
         $garments = [
             ['id' => 'tshirt',   'name' => 'Krekls',  'file' => 't-shirt_dizaina.png', 'gender' => 'men'],
-            ['id' => 'hoodie',   'name' => 'Hudija',  'file' => 'Hoodie_dizaina.jpg',  'gender' => 'men'],
-            ['id' => 'jeans',    'name' => 'Bikses',  'file' => 'Jeans_dizaina.jpg',   'gender' => 'men'],
             ['id' => 'tshirt_w', 'name' => 'Krekls',  'file' => 't-shirt_dizaina.png', 'gender' => 'women'],
-            ['id' => 'hoodie_w', 'name' => 'Hudija',  'file' => 'Hoodie_dizaina.jpg',  'gender' => 'women'],
-            ['id' => 'jeans_w',  'name' => 'Bikses',  'file' => 'Jeans_dizaina.jpg',   'gender' => 'women'],
         ];
 
         $presets = [
